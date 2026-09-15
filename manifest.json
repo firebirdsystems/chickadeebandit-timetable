@@ -1,0 +1,301 @@
+{
+  "$schema": "https://chickadeebandit.com/manifest-schema.json",
+  "id": "timetable",
+  "name": "Timetable",
+  "version": "1.0.0",
+  "description": "School timetables for students, with alternating weeks or rotating days, bell times, terms and exceptions.",
+  "entrypoint": "index.html",
+  "runtime": "static",
+  "category": "family",
+  "tags": [
+    "school",
+    "timetable",
+    "schedule",
+    "students",
+    "week-ab"
+  ],
+  "contexts": [
+    "household"
+  ],
+  "data_access": {
+    "reads": [
+      "family.members",
+      "family.preferences"
+    ],
+    "writes": []
+  },
+  "permissions": {
+    "default_audience": "everyone",
+    "requires_approval": false
+  },
+  "storage": "db",
+  "preload": {
+    "timetables": {
+      "sql": "SELECT * FROM app_timetable__timetables WHERE status = 'active' ORDER BY created_at, id LIMIT 20"
+    }
+  },
+  "db_plaintext_columns": [
+    "cycle_kind",
+    "cycle_length",
+    "slot",
+    "kind",
+    "override_slot",
+    "status",
+    "revision",
+    "export_mode",
+    "override_consumes_cycle_day",
+    "materializer_version"
+  ],
+  "member_references": {
+    "timetables": [
+      {
+        "column": "member_id",
+        "on_removed": "delete"
+      },
+      {
+        "column": "created_by",
+        "on_removed": "keep"
+      }
+    ],
+    "periods": [
+      {
+        "column": "created_by",
+        "on_removed": "keep"
+      }
+    ],
+    "lessons": [
+      {
+        "column": "created_by",
+        "on_removed": "keep"
+      }
+    ],
+    "exceptions": [
+      {
+        "column": "created_by",
+        "on_removed": "keep"
+      }
+    ],
+    "school_days": [
+      {
+        "column": "created_by",
+        "on_removed": "keep"
+      }
+    ]
+  },
+  "delete_cascades": {
+    "timetables": [
+      {
+        "table": "periods",
+        "foreign_key": "timetable_id"
+      },
+      {
+        "table": "lessons",
+        "foreign_key": "timetable_id"
+      },
+      {
+        "table": "exceptions",
+        "foreign_key": "timetable_id"
+      },
+      {
+        "table": "school_days",
+        "foreign_key": "timetable_id"
+      }
+    ]
+  },
+  "row_policies": {
+    "timetables": {
+      "kind": "owner_only",
+      "member_column": "member_id",
+      "adults_bypass": true,
+      "column_write_acls": {
+        "id": {
+          "writable_by": [],
+          "actions": [
+            "update"
+          ]
+        },
+        "member_id": {
+          "writable_by": [],
+          "actions": [
+            "update"
+          ]
+        },
+        "created_by": {
+          "writable_by": [],
+          "actions": [
+            "update"
+          ]
+        },
+        "export_mode": {
+          "writable_by": [
+            "adult"
+          ],
+          "actions": [
+            "update"
+          ]
+        }
+      }
+    },
+    "periods": {
+      "kind": "inherit_visibility",
+      "fk_column": "timetable_id",
+      "parent_table": "timetables",
+      "writer_column": "created_by",
+      "adults_bypass": true,
+      "parent_owner_actions": [
+        "update",
+        "delete"
+      ],
+      "column_write_acls": {
+        "id": {
+          "writable_by": [],
+          "actions": [
+            "update"
+          ]
+        },
+        "timetable_id": {
+          "writable_by": [],
+          "actions": [
+            "update"
+          ]
+        },
+        "created_by": {
+          "writable_by": [],
+          "actions": [
+            "update"
+          ]
+        }
+      }
+    },
+    "lessons": {
+      "kind": "inherit_visibility",
+      "fk_column": "timetable_id",
+      "parent_table": "timetables",
+      "writer_column": "created_by",
+      "adults_bypass": true,
+      "parent_owner_actions": [
+        "update",
+        "delete"
+      ],
+      "column_write_acls": {
+        "id": {
+          "writable_by": [],
+          "actions": [
+            "update"
+          ]
+        },
+        "timetable_id": {
+          "writable_by": [],
+          "actions": [
+            "update"
+          ]
+        },
+        "created_by": {
+          "writable_by": [],
+          "actions": [
+            "update"
+          ]
+        }
+      }
+    },
+    "exceptions": {
+      "kind": "inherit_visibility",
+      "fk_column": "timetable_id",
+      "parent_table": "timetables",
+      "writer_column": "created_by",
+      "adults_bypass": true,
+      "parent_owner_actions": [
+        "update",
+        "delete"
+      ],
+      "column_write_acls": {
+        "id": {
+          "writable_by": [],
+          "actions": [
+            "update"
+          ]
+        },
+        "timetable_id": {
+          "writable_by": [],
+          "actions": [
+            "update"
+          ]
+        },
+        "created_by": {
+          "writable_by": [],
+          "actions": [
+            "update"
+          ]
+        }
+      }
+    },
+    "school_days": {
+      "kind": "inherit_visibility",
+      "fk_column": "timetable_id",
+      "parent_table": "timetables",
+      "writer_column": "created_by",
+      "adults_bypass": true,
+      "parent_owner_actions": [
+        "update",
+        "delete"
+      ],
+      "column_write_acls": {
+        "id": {
+          "writable_by": [],
+          "actions": [
+            "update"
+          ]
+        },
+        "timetable_id": {
+          "writable_by": [],
+          "actions": [
+            "update"
+          ]
+        },
+        "created_by": {
+          "writable_by": [],
+          "actions": [
+            "update"
+          ]
+        }
+      },
+      "retain_days": {
+        "default": 400,
+        "timestamp_column": "day_date",
+        "id_column": "id",
+        "tier": "operational"
+      }
+    }
+  },
+  "agenda": {
+    "kind": "event",
+    "label": "School",
+    "source": {
+      "kind": "sql",
+      "query": "SELECT t.id AS id, t.name AS title, MIN(p.start_time) || '–' || MAX(p.end_time) || ' · ' || COUNT(*) || CASE WHEN COUNT(*) = 1 THEN ' lesson' ELSE ' lessons' END AS subtitle, s.day_date || 'T' || MIN(p.start_time) AS when_at, t.member_id AS member_id, 'event' AS kind FROM app_timetable__school_days s JOIN app_timetable__timetables t ON t.id = s.timetable_id AND t.status = 'active' JOIN app_timetable__lessons l ON l.timetable_id = s.timetable_id AND l.slot = s.slot JOIN app_timetable__periods p ON p.id = l.period_id AND p.timetable_id = t.id WHERE s.day_date = :today GROUP BY t.id, t.name, t.member_id, s.day_date ORDER BY MIN(p.start_time), t.id LIMIT 20"
+    }
+  },
+  "glance": {
+    "source": {
+      "kind": "sql",
+      "query": "SELECT COUNT(DISTINCT t.id) AS n FROM app_timetable__school_days s JOIN app_timetable__timetables t ON t.id = s.timetable_id AND t.status = 'active' JOIN app_timetable__lessons l ON l.timetable_id = t.id AND l.slot = s.slot WHERE s.day_date = :today LIMIT 1"
+    },
+    "display": {
+      "template": "badge",
+      "count": "n",
+      "label": "students have school today",
+      "severity": "info"
+    }
+  },
+  "widget": {
+    "label": "Timetable",
+    "size": "small"
+  },
+  "nav": {
+    "label": "Timetable"
+  },
+  "resource_limits": {
+    "max_db_bytes": 10485760
+  },
+  "icon": "🗓️"
+}

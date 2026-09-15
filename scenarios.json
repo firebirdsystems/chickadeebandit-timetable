@@ -1,0 +1,113 @@
+{
+  "scenarios": [
+    {
+      "name": "student can maintain an adult-entered timetable while a sibling cannot",
+      "members": {
+        "adult": "adult",
+        "student": "child",
+        "sibling": "child"
+      },
+      "steps": [
+        {
+          "action": "seedRaw",
+          "sql": "INSERT INTO app_timetable__timetables (id,member_id,name,cycle_kind,cycle_length,anchor_date,start_date,end_date,status,created_by,created_at,updated_at) VALUES ('tt-one',?,'School','weekly',2,'2026-09-14','2026-09-14','2026-12-20','active',?,'2026-09-15T12:00:00Z','2026-09-15T12:00:00Z')",
+          "params": [
+            "{{student}}",
+            "{{adult}}"
+          ]
+        },
+        {
+          "action": "seedRaw",
+          "sql": "INSERT INTO app_timetable__periods (id,timetable_id,label,start_time,end_time,sort_order,created_by) VALUES ('p-one','tt-one','Period 1','08:00','08:45',0,?)",
+          "params": [
+            "{{adult}}"
+          ]
+        },
+        {
+          "action": "seedRaw",
+          "sql": "INSERT INTO app_timetable__lessons (id,timetable_id,slot,period_id,subject,created_by) VALUES ('l-one','tt-one',0,'p-one','Math',?)",
+          "params": [
+            "{{adult}}"
+          ]
+        },
+        {
+          "action": "seedRaw",
+          "sql": "INSERT INTO app_timetable__school_days (id,timetable_id,day_date,slot,created_by) VALUES ('day-one','tt-one','2026-09-14',0,?)",
+          "params": [
+            "{{adult}}"
+          ]
+        },
+        {
+          "action": "db",
+          "as": "student",
+          "sql": "SELECT id, subject FROM app_timetable__lessons WHERE id = 'l-one'",
+          "expect": {
+            "status": 200,
+            "rowCount": 1,
+            "rowsContain": [
+              {
+                "subject": "Math"
+              }
+            ]
+          }
+        },
+        {
+          "action": "db",
+          "as": "sibling",
+          "sql": "SELECT id FROM app_timetable__lessons WHERE id = 'l-one'",
+          "expect": {
+            "status": 200,
+            "rowCount": 0
+          }
+        },
+        {
+          "action": "db",
+          "as": "student",
+          "sql": "UPDATE app_timetable__lessons SET subject = 'Science' WHERE id = 'l-one'",
+          "expect": {
+            "status": 200
+          }
+        },
+        {
+          "action": "db",
+          "as": "sibling",
+          "sql": "UPDATE app_timetable__lessons SET subject = 'History' WHERE id = 'l-one'",
+          "expect": {
+            "status": 200
+          }
+        },
+        {
+          "action": "db",
+          "as": "adult",
+          "sql": "SELECT subject, created_by FROM app_timetable__lessons WHERE id = 'l-one'",
+          "expect": {
+            "status": 200,
+            "rowCount": 1,
+            "rowsContain": [
+              {
+                "subject": "Science"
+              }
+            ]
+          }
+        },
+        {
+          "action": "db",
+          "as": "student",
+          "sql": "DELETE FROM app_timetable__school_days WHERE id = 'day-one'",
+          "expect": {
+            "status": 200
+          }
+        },
+        {
+          "action": "db",
+          "as": "adult",
+          "sql": "SELECT id FROM app_timetable__school_days WHERE id = 'day-one'",
+          "expect": {
+            "status": 200,
+            "rowCount": 0
+          }
+        }
+      ]
+    }
+  ]
+}

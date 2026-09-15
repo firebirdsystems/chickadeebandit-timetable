@@ -1,0 +1,14 @@
+import { describe, expect, it } from 'vitest';
+import { anchorFromPhase, projectSchoolDays, slotForDate, validateTimetable, validateLessons, columnSlots, weekday } from '../src/logic.js';
+const t=(extra={})=>({id:'tt',name:'School',cycle_kind:'weekly',cycle_length:2,anchor_date:'2026-09-14',start_date:'2026-09-14',end_date:'2026-10-09',override_consumes_cycle_day:0,...extra});
+const noSchool=(start,end)=>({kind:'no_school',start_date:start,end_date:end,label:'Break'});
+const override=(date,slot)=>({kind:'day_override',start_date:date,end_date:date,override_slot:slot,label:'Alternate day'});
+describe('timetable projection',()=>{
+ it('keeps weekly phase across year and DST boundaries',()=>{const x=t({anchor_date:'2026-12-28',start_date:'2026-12-28',end_date:'2027-01-22'});expect(slotForDate('2027-01-04',x)).toBe(7);expect(slotForDate('2027-01-11',x)).toBe(0);const y=t({anchor_date:'2027-03-08',start_date:'2027-03-08',end_date:'2027-03-26'});expect(slotForDate('2027-03-22',y)).toBe(0);});
+ it('skips holidays and excludes weekends in a day rotation',()=>{const x=t({cycle_kind:'day_rotation',cycle_length:6,anchor_date:'2026-09-14'}),e=[noSchool('2026-09-17','2026-09-18')];expect(slotForDate('2026-09-16',x,e)).toBe(2);expect(slotForDate('2026-09-21',x,e)).toBe(3);expect(slotForDate('2026-09-19',x,e)).toBeNull();});
+ it('handles both override consumption choices',()=>{const e=[override('2026-09-16',5)];const x=t({cycle_kind:'day_rotation',cycle_length:6,anchor_date:'2026-09-14'});expect(slotForDate('2026-09-16',x,e)).toBe(5);expect(slotForDate('2026-09-17',x,e)).toBe(2);expect(slotForDate('2026-09-17',{...x,override_consumes_cycle_day:1},e)).toBe(3);});
+ it('produces deterministic bounded rows and refuses conflicts',()=>{const x=t();expect(projectSchoolDays(x)).toEqual(projectSchoolDays(x));expect(projectSchoolDays(x).every(r=>weekday(r.day_date)<=4)).toBe(true);expect(()=>validateTimetable(t({end_date:'2027-09-15'}))).toThrow(/366/);expect(()=>projectSchoolDays(x,[noSchool('2026-09-16','2026-09-18'),override('2026-09-17',0)])).toThrow(/conflict/);});
+ it('derives an anchor from a human cycle phase',()=>{expect(anchorFromPhase('2026-09-21','weekly',2,1)).toBe('2026-09-14');expect(anchorFromPhase('2026-09-16','day_rotation',6,2)).toBe('2026-09-14');});
+ it('rejects lessons referencing another timetable period or duplicate cell',()=>{const p=[{id:'p',start_time:'08:00',end_time:'08:50',sort_order:0}];const l={id:'l',timetable_id:'tt',slot:0,period_id:'p',subject:'Math'};expect(()=>validateLessons([l],p,t())).not.toThrow();expect(()=>validateLessons([l,{...l,id:'l2'}],p,t())).toThrow(/one lesson/);expect(()=>validateLessons([{...l,period_id:'other'}],p,t())).toThrow(/another timetable/);});
+ it('renders each supported weekly grid column',()=>{expect(columnSlots(t({cycle_length:4}))).toHaveLength(20);expect(columnSlots(t({cycle_kind:'day_rotation',cycle_length:6}))).toHaveLength(6);});
+});
