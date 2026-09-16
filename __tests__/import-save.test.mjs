@@ -310,6 +310,20 @@ describe('replacing a timetable', () => {
     expect(days).not.toContain('2026-10-19');
   });
 
+  it('counts the chosen rotation day past a kept holiday, so the chosen date keeps its day', async () => {
+    const holiday = { ...halfTerm, start_date: '2026-09-15', end_date: '2026-09-15', label: 'Inset day' };
+    const app = setup({ exceptions: [holiday] });
+    const text = 'Day,Start,End,Subject\n1,08:30,09:15,Maths\n2,08:30,09:15,Art\n3,08:30,09:15,Music';
+    app.context.importReview.candidate = importer.buildCandidate(importer.parseTimetableText(text));
+    Object.assign(app.context.form.values, { keep_exceptions: 'on', start_date: '2026-09-01', phase_date: '2026-09-16', phase: '3', cycle_length: '6' });
+    await app.run();
+    const days = inserts(app, 'school_days').flatMap(s => s.params);
+    const slotOn = date => days[days.indexOf(date) + 1];
+    expect(slotOn('2026-09-16')).toBe(2);
+    expect(slotOn('2026-09-14')).toBe(1);
+    expect(days).not.toContain('2026-09-15');
+  });
+
   it('drops holidays when unticked', async () => {
     const app = setup({ exceptions: [halfTerm] });
     await app.run();

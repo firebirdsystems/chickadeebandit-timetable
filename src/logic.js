@@ -18,15 +18,19 @@ export function mondayOf(date) { return addDays(date, -weekday(date)); }
 export function mod(value, length) { return ((value % length) + length) % length; }
 export function validTime(value) { return TIME_RE.test(value ?? ''); }
 
-export function anchorFromPhase(date, kind, length, phase) {
+// Rotation phases count only days that advance the cycle, so pass the exceptions the timetable will have.
+export function anchorFromPhase(date, kind, length, phase, exceptions = [], consumes = 0) {
   if (!Number.isInteger(phase) || phase < 0 || phase >= length) throw new Error('Choose a valid cycle phase.');
   if (weekday(date) > 4) throw new Error('Choose a school day.');
   if (kind === 'weekly') return addDays(mondayOf(date), -7 * phase);
   if (kind !== 'day_rotation') throw new Error('Unknown cycle type.');
-  // The chosen school date is phase N; count backwards N weekdays to Day 1.
+  const e = exceptionAt(date, exceptions);
+  if (e) throw new Error(`${date} is ${e.kind === 'no_school' ? 'a day off' : 'an overridden day'}. Choose an ordinary school day.`);
+  // The chosen school date is phase N; count backwards N cycle-advancing days to Day 1.
+  const t = { override_consumes_cycle_day: consumes };
   let anchor = date;
   for (let i = 0; i < phase; i++) {
-    do { anchor = addDays(anchor, -1); } while (weekday(anchor) > 4);
+    do { anchor = addDays(anchor, -1); } while (!advances(anchor, t, exceptions));
   }
   return anchor;
 }
