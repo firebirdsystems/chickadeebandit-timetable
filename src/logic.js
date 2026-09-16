@@ -99,6 +99,14 @@ export function validatePeriods(periods) {
     ids.add(p.id); orders.add(Number(p.sort_order));
   }
 }
+// Overlap is checked for the period being saved (and for a whole import), never
+// on load: an older timetable with overlapping periods must stay editable.
+export function overlappingPeriod(period, others) {
+  return others.find(o => o.id !== period.id && period.start_time < o.end_time && o.start_time < period.end_time) ?? null;
+}
+export function validateBellTimes(periods) {
+  for (const p of periods) if (overlappingPeriod(p, periods)) throw new Error('Bell periods cannot overlap.');
+}
 export function validateLessons(lessons, periods, t) {
   validatePeriods(periods);
   const ids = new Set(periods.map(p => p.id)), cells = new Set();

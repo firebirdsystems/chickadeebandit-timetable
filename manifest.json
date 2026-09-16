@@ -44,7 +44,8 @@
     "revision",
     "export_mode",
     "override_consumes_cycle_day",
-    "materializer_version"
+    "materializer_version",
+    "source_kind"
   ],
   "member_references": {
     "timetables": [
