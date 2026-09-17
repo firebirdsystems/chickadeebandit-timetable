@@ -121,7 +121,7 @@ const unescapeText = value => value.replace(/\\([\\;,nN])/g, (_, c) => (c === 'n
 // ── Time zones ───────────────────────────────────────────────────────────────
 
 const formatters = new Map();
-function zoneParts(ms, zone) {
+export function zoneParts(ms, zone) {
   let format = formatters.get(zone);
   if (!format) {
     format = new Intl.DateTimeFormat('en-US', { timeZone: zone, hourCycle: 'h23', year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit' });
@@ -204,6 +204,23 @@ function splitSummary(summary) {
   const text = summary.trim();
   const m = text.match(/^(.*\S)\s*(?::|\s[-–])\s*(\S+\/\S+)$/);
   return m ? [m[1], m[2]] : [text, ''];
+}
+
+/**
+ * An event's unescaped title, description and location → { subject, notes, room, teacher }. Shared by calendar
+ * files and synced calendars, whose text arrives already unescaped.
+ */
+export function eventText({ summary = '', description = '', location = '', uid = '' }) {
+  // Titles and places are plain text, but Sentral and Pronote escape them as HTML ("English &amp; Drama").
+  const title = decodeEntities(String(summary ?? ''));
+  const details = plainText(String(description ?? ''));
+  const place = decodeEntities(String(location ?? '')).trim().replace(/^(?:room|rm)\s*:\s*/i, '');
+  // Somtoday writes "room - lesson group - teacher" as the summary, so a room change would read as a new subject.
+  const parts = /somtoday/i.test(uid ?? '') ? title.split(' - ').map(x => x.trim()) : [];
+  if (parts.length === 3 && parts[1]) return { subject: parts[1], notes: '', room: place || parts[0], teacher: parts[2] };
+  const named = details.match(SUBJECT_LINE)?.[1];
+  const [subject, notes] = named ? [named, ''] : splitSummary(title);
+  return { subject, notes, room: place || (details.match(ROOM_LINE)?.[1] ?? ''), teacher: details.match(TEACHER_LINE)?.[1] ?? '' };
 }
 
 // ── Parse ────────────────────────────────────────────────────────────────────
@@ -352,18 +369,7 @@ export function parseIcs(text, { timezone, from, to }) {
     if (cancelled(event)) return;
     const props = event.props;
     // Text is read once per event, not once per occurrence.
-    event.text ??= (() => {
-      // Titles and places are plain text, but Sentral and Pronote escape them as HTML ("English &amp; Drama").
-      const summary = decodeEntities(unescapeText(props.SUMMARY?.value ?? ''));
-      const description = plainText(unescapeText(props.DESCRIPTION?.value ?? ''));
-      const location = decodeEntities(unescapeText(props.LOCATION?.value ?? '')).trim().replace(/^(?:room|rm)\s*:\s*/i, '');
-      // Somtoday writes "room - lesson group - teacher" as the summary, so a room change would read as a new subject.
-      const parts = /somtoday/i.test(props.UID?.value ?? '') ? summary.split(' - ').map(x => x.trim()) : [];
-      if (parts.length === 3 && parts[1]) return { subject: parts[1], notes: '', room: location || parts[0], teacher: parts[2] };
-      const named = description.match(SUBJECT_LINE)?.[1];
-      const [subject, notes] = named ? [named, ''] : splitSummary(summary);
-      return { subject, notes, room: location || (description.match(ROOM_LINE)?.[1] ?? ''), teacher: description.match(TEACHER_LINE)?.[1] ?? '' };
-    })();
+    event.text ??= eventText({ summary: unescapeText(props.SUMMARY?.value ?? ''), description: unescapeText(props.DESCRIPTION?.value ?? ''), location: unescapeText(props.LOCATION?.value ?? ''), uid: props.UID?.value ?? '' });
     const { subject, notes, room, teacher } = event.text;
     if (start.allDay) {
       // Some systems (Blackbaud, older Canvas) end a one-day event on the day it starts.

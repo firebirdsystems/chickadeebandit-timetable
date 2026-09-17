@@ -28,5 +28,11 @@ lessons, and `src/infer.js` works out the weekly or rotating cycle from lessons
 that repeat, using "Day N"/"Week A" labels when the calendar has them. Review
 shows the evidence, the events left out, the weekdays with no lessons (tick the
 ones the school was closed) and whether each school day in the calendar lands
-on the same day in the draft. Synced-calendar import, calendar export, photo
-import and ambient kiosk sharing are later phases.
+on the same day in the draft.
+
+A calendar already synced into the household (Calendar settings) can be used
+instead of a file: choose whose calendars, then one of them. `src/synced.js`
+reads the hub's `family.calendar.member:<id>` rows into the same lessons, so the
+review is the same. The hub keeps only the next 8 weeks of a synced calendar,
+so a file covers a whole term better. Calendar export, photo import and ambient
+kiosk sharing are later phases.

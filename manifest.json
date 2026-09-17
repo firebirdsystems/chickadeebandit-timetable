@@ -20,7 +20,8 @@
   "data_access": {
     "reads": [
       "family.members",
-      "family.preferences"
+      "family.preferences",
+      "family.calendar"
     ],
     "writes": []
   },

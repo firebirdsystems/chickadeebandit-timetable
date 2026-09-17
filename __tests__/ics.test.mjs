@@ -168,7 +168,8 @@ describe('ICS review fixes', () => {
     expect(parsed.warnings).toEqual(['50 events have dates outside 2026-09-01 to 2027-08-31; those dates were ignored.']);
     const counted = Array.from({ length: 30 }, (_, i) => ['DTSTART:16010101T090000Z', 'DURATION:PT1H', `UID:${i}`, 'SUMMARY:Old', 'RRULE:FREQ=DAILY;COUNT=999999']);
     expect(read(cal(...counted)).errors).toEqual(["The calendar's repeating events go back too far to read. Export only this school year."]);
-  });
+  // Walking to the 3M-day cap takes about 4.5s on a laptop, too close to the 5s default.
+  }, 20_000);
 
   it('applies a changed occurrence whose original date is before the window or excluded', () => {
     const parsed = read(cal(
