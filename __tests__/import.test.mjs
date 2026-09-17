@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest';
-import { overlappingPeriod, validateBellTimes, validateLessons, validatePeriods } from '../src/logic.js';
+import { clashingLesson, overlappingPeriod, validateDayLessons, validateLessons, validatePeriods } from '../src/logic.js';
 import {
   BATCH_LIMITS, IMPORT_LIMITS, buildCandidate, candidateRows, carryOver, diffCandidate, digestText,
-  normalizeTime, parseDayLabel, parseDelimited, parseTimeRange, parseTimetableText, planImportBatches,
+  normalizeTime, parseDayLabel, parseDelimited, parseTimeRange, parseTimetableText, planImportBatches, spanningPeriods,
 } from '../src/import.js';
 
 const candidateOf = text => buildCandidate(parseTimetableText(text));
@@ -199,16 +199,47 @@ describe('candidate periods and lessons', () => {
     ]);
   });
 
-  it('refuses bell times that overlap without lining up', () => {
-    const c = candidateOf('Day,Start,End,Subject\nMon,08:30,09:15,A\nTue,09:00,09:45,B');
-    expect(c.errors[0]).toMatch(/08:30-09:15 and 09:00-09:45 overlap/);
+  it('lets a day run its own bell times, and refuses lessons that overlap on one day', () => {
+    const own = candidateOf('Day,Start,End,Subject\nMon,08:30,09:15,A\nTue,09:00,09:45,B');
+    expect(own.errors).toEqual([]);
+    expect(own.periods.map(p => p.key)).toEqual(['08:30-09:15', '09:00-09:45']);
+    expect(candidateOf('Day,Start,End,Subject\nMon,08:30,09:15,A\nMon,09:00,09:45,B').errors).toEqual(['Rows 2 and 3 overlap on the same day.']);
+    // A longer lesson that does not line up with other days' periods is a period of its own.
     const outer = candidateOf('Day,Start,End,Subject\nMon,08:30,09:15,A\nMon,09:20,10:05,B\nTue,08:30,09:50,C');
-    expect(outer.errors.join()).toMatch(/does not line up|overlap/);
+    expect(outer.errors).toEqual([]);
+    expect(outer.lessons.filter(l => l.slot === 1).map(l => l.period_key)).toEqual(['08:30-09:50']);
   });
 
-  it('refuses a long lesson that covers one period plus extra time, or stops short of its last period', () => {
-    expect(candidateOf('Day,Start,End,Subject\nMon,08:30,09:15,A\nTue,08:30,10:00,B').errors[0]).toMatch(/08:30-10:00 does not line up/);
-    expect(candidateOf('Day,Start,End,Subject\nMon,08:30,09:15,A\nMon,09:20,10:05,B\nTue,08:00,10:05,C').errors[0]).toMatch(/08:00-10:05 does not line up/);
+  it('makes a long lesson its own period when it covers one period plus extra time, or stops short of its last period', () => {
+    expect(candidateOf('Day,Start,End,Subject\nMon,08:30,09:15,A\nTue,08:30,10:00,B').periods.map(p => p.key)).toEqual(['08:30-09:15', '08:30-10:00']);
+    const early = candidateOf('Day,Start,End,Subject\nMon,08:30,09:15,A\nMon,09:20,10:05,B\nTue,08:00,10:05,C');
+    expect(early.errors).toEqual([]);
+    expect(early.lessons.filter(l => l.slot === 1).map(l => l.period_key)).toEqual(['08:00-10:05']);
+  });
+
+  it('refuses lessons that overlap on one day by their own times, before a split could hide one in a break', () => {
+    const c = candidateOf(csv(['Day,Start,End,Subject', 'Mon,08:30,11:00,Physics', 'Mon,09:30,10:00,Maths', 'Tue,08:30,09:00,A', 'Tue,10:30,11:00,B']));
+    expect(c.errors).toEqual(['Rows 2 and 3 overlap on the same day.']);
+    // Each overlapping pair is named once, however many rows repeat it.
+    expect(candidateOf(csv(['Day,Week,Start,End,Subject', 'Mon,A,08:30,09:30,X', 'Mon,A,09:00,10:00,Y', 'Mon,A,08:30,09:30,X'])).errors).toEqual(['Rows 2 and 3 overlap on the same day.']);
+    const periods = [{ key: '08:30-09:00', start_time: '08:30', end_time: '09:00' }, { key: '10:30-11:00', start_time: '10:30', end_time: '11:00' }];
+    const physics = { start_time: '08:30', end_time: '11:00' };
+    expect(spanningPeriods(physics, periods, [{ start_time: '09:30', end_time: '10:00' }])).toBeNull();
+    expect(spanningPeriods(physics, periods, []).map(p => p.key)).toEqual(['08:30-09:00', '10:30-11:00']);
+  });
+
+  it('splits a double lesson over the most-used periods when two chains cover it equally', () => {
+    const c = candidateOf(csv(['Day,Start,End,Subject', 'Mon,09:00,10:00,X', 'Mon,10:00,11:00,Y', 'Tue,09:00,10:00,X', 'Tue,10:00,11:00,Y', 'Wed,09:00,10:00,X', 'Wed,10:00,11:00,Y',
+      'Thu,09:00,09:40,Z', 'Thu,09:40,11:00,W', 'Fri,09:00,11:00,D']));
+    expect(c.errors).toEqual([]);
+    expect(c.lessons.filter(l => l.slot === 4).map(l => l.period_key)).toEqual(['09:00-10:00', '10:00-11:00']);
+  });
+
+  it('splits a double lesson by the day\'s own periods when days use different bells', () => {
+    // Monday 50-minute periods; Wednesday 60-minute ones with a double lesson over two of them.
+    const c = candidateOf(csv(['Day,Start,End,Subject', 'Mon,09:00,09:50,A', 'Mon,09:50,10:40,B', 'Wed,09:00,10:00,C', 'Wed,10:00,11:00,D', 'Thu,09:00,11:00,E', 'Thu,11:00,12:00,F', 'Fri,11:00,12:00,G']));
+    expect(c.errors).toEqual([]);
+    expect(c.lessons.filter(l => l.slot === 3).map(l => [l.period_key, l.subject])).toEqual([['09:00-10:00', 'E'], ['10:00-11:00', 'E'], ['11:00-12:00', 'F']]);
   });
 
   it('dedupes identical rows and refuses different lessons in one cell', () => {
@@ -217,8 +248,9 @@ describe('candidate periods and lessons', () => {
   });
 
   it('caps bell periods and reports the error count beyond the first 20', () => {
-    const rows = Array.from({ length: 17 }, (_, i) => `Mon,${String(7 + Math.floor(i / 2)).padStart(2, '0')}:${i % 2 ? '30' : '00'},${String(7 + Math.floor(i / 2)).padStart(2, '0')}:${i % 2 ? '55' : '25'},S${i}`);
-    expect(candidateOf(csv(['Day,Start,End,Subject', ...rows])).errors[0]).toMatch(/17 different bell periods/);
+    // 33 bell periods, no more than 11 on any day.
+    const rows = Array.from({ length: 33 }, (_, i) => `${['Mon', 'Tue', 'Wed'][i % 3]},${String(7 + Math.floor(i / 2)).padStart(2, '0')}:${i % 2 ? '30' : '00'},${String(7 + Math.floor(i / 2)).padStart(2, '0')}:${i % 2 ? '55' : '25'},S${i}`);
+    expect(candidateOf(csv(['Day,Start,End,Subject', ...rows])).errors).toEqual(['33 different bell periods found; the limit is 32.']);
     const bad = Array.from({ length: 25 }, () => 'Sun,08:30,09:15,A');
     const c = candidateOf(csv(['Day,Start,End,Subject', ...bad]));
     expect(c.errors).toHaveLength(20);
@@ -241,12 +273,16 @@ describe('candidate periods and lessons', () => {
     expect(rows.lessons[0]).toMatchObject({ timetable_id: 'tt', color: '', notes: '', created_by: 'adult' });
   });
 
-  it('checks overlap per saved period or whole import, but still loads older overlapping periods', () => {
+  it('allows overlapping periods on different days, refuses overlapping lessons on one day, and still loads older data', () => {
     const p = (id, start_time, end_time, sort_order) => ({ id, start_time, end_time, sort_order });
     const legacy = [p('a', '08:30', '09:15', 0), p('b', '09:00', '09:45', 1), p('c', '09:30', '10:15', 2)];
+    const l = (id, slot, period_id) => ({ id, slot, period_id, timetable_id: 't', subject: 'X' });
     expect(() => validatePeriods(legacy)).not.toThrow();
-    expect(() => validateBellTimes(legacy)).toThrow(/overlap/);
-    expect(() => validateBellTimes([p('a', '08:30', '09:15', 0), p('b', '09:15', '10:00', 1)])).not.toThrow();
+    expect(() => validateDayLessons([l('1', 0, 'a'), l('2', 1, 'b')], legacy)).not.toThrow();
+    expect(() => validateDayLessons([l('1', 0, 'a'), l('2', 0, 'b')], legacy)).toThrow('Two lessons on the same day overlap.');
+    expect(() => validateDayLessons([l('1', 0, 'a'), l('2', 0, 'c')], legacy)).not.toThrow();
+    expect(clashingLesson(l('new', 0, 'b'), legacy[1], [l('1', 0, 'a'), l('2', 1, 'c')], legacy)).toMatchObject({ id: '1' });
+    expect(clashingLesson(l('1', 0, 'a'), legacy[0], [l('1', 0, 'a')], legacy)).toBeNull();
     expect(overlappingPeriod(p('b', '09:00', '09:45', 1), legacy)).toMatchObject({ id: 'a' });
     expect(overlappingPeriod(p('d', '10:15', '11:00', 3), legacy)).toBeNull();
   });
@@ -327,16 +363,32 @@ describe('carrying over from a replaced timetable', () => {
   });
 });
 
+describe('import limits for days with their own bells', () => {
+  it('refuses rows whose lessons overlap on one day even when built outside the candidate', () => {
+    const candidate = { periods: [{ key: '08:30-09:20', start_time: '08:30', end_time: '09:20', sort_order: 0, label: 'P1' }, { key: '09:00-10:00', start_time: '09:00', end_time: '10:00', sort_order: 1, label: 'W1' }],
+      lessons: [{ slot: 0, period_key: '08:30-09:20', subject: 'A' }, { slot: 0, period_key: '09:00-10:00', subject: 'B' }] };
+    let n = 0;
+    expect(() => candidateRows(candidate, { id: 't', cycle_kind: 'weekly', cycle_length: 1 }, 'm', () => `id${n++}`)).toThrow('Two lessons on the same day overlap.');
+  });
+
+  it('allows more periods than a day uses, but refuses more lessons in one day than the limit', () => {
+    const rows = ['Day,Start,End,Subject'];
+    for (let i = 0; i < 17; i++) rows.push(`Mon,${String(7 + Math.floor(i / 2)).padStart(2, '0')}:${i % 2 ? '30' : '00'},${String(7 + Math.floor(i / 2)).padStart(2, '0')}:${i % 2 ? '55' : '25'},S${i}`);
+    expect(candidateOf(rows.join('\n')).errors).toEqual(['Row 18: its day has 17 lessons; the limit is 16 a day.']);
+  });
+});
+
 describe('import batches', () => {
-  // Largest supported import: 16 periods × 4 weeks × 5 days, every text field at the editor's max length.
+  // Largest supported import: 32 periods (days with their own bell times), 16 lessons a day × 4 weeks × 5 days,
+  // every text field at the editor's max length.
   const largest = () => {
     const draft = { id: 'draft-id', revision: 0 };
     const periods = Array.from({ length: IMPORT_LIMITS.periods }, (_, i) => ({
       id: `period-${i}`.padEnd(36, 'x'), timetable_id: draft.id, label: 'P'.repeat(80),
-      start_time: `${String(i + 6).padStart(2, '0')}:00`, end_time: `${String(i + 6).padStart(2, '0')}:50`, sort_order: i, created_by: 'member',
+      start_time: `${String(6 + Math.floor(i / 2)).padStart(2, '0')}:${i % 2 ? '30' : '00'}`, end_time: `${String(6 + Math.floor(i / 2)).padStart(2, '0')}:${i % 2 ? '55' : '25'}`, sort_order: i, created_by: 'member',
     }));
     const lessons = [];
-    for (let week = 0; week < 4; week++) for (let day = 0; day < 5; day++) for (const p of periods) {
+    for (let week = 0; week < 4; week++) for (let day = 0; day < 5; day++) for (const p of periods.slice(day % 2 ? 16 : 0, day % 2 ? 32 : 16)) {
       lessons.push({ id: `lesson-${lessons.length}`.padEnd(36, 'x'), timetable_id: draft.id, slot: week * 7 + day, period_id: p.id,
         subject: 'S'.repeat(80), room: 'R'.repeat(80), teacher: 'T'.repeat(80), color: '#607cae', notes: '', created_by: 'member' });
     }

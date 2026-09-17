@@ -35,6 +35,13 @@ export function anchorFromPhase(date, kind, length, phase, exceptions = [], cons
   return anchor;
 }
 
+/** Exceptions that fit a term: holidays clipped to it, day overrides inside it; the rest are dropped. */
+export function clipExceptions(exceptions, start, end) {
+  return exceptions
+    .map(e => (e.kind === 'no_school' ? { ...e, start_date: e.start_date < start ? start : e.start_date, end_date: e.end_date > end ? end : e.end_date } : e))
+    .filter(e => e.start_date <= e.end_date && e.start_date >= start && e.end_date <= end);
+}
+
 export function validateTimetable(t, exceptions = []) {
   if (!['weekly', 'day_rotation'].includes(t.cycle_kind)) throw new Error('Choose a cycle type.');
   const min = t.cycle_kind === 'weekly' ? 1 : 2;
@@ -103,13 +110,20 @@ export function validatePeriods(periods) {
     ids.add(p.id); orders.add(Number(p.sort_order));
   }
 }
-// Overlap is checked for the period being saved (and for a whole import), never
-// on load: an older timetable with overlapping periods must stay editable.
+// Bell periods may overlap: some days run their own bell times (a late-start Wednesday). Two lessons on the same
+// day may not. Checked for the lesson or period being saved (and for a whole import), never on load, so an older
+// timetable that breaks the rule stays editable.
 export function overlappingPeriod(period, others) {
   return others.find(o => o.id !== period.id && period.start_time < o.end_time && o.start_time < period.end_time) ?? null;
 }
-export function validateBellTimes(periods) {
-  for (const p of periods) if (overlappingPeriod(p, periods)) throw new Error('Bell periods cannot overlap.');
+/** The lesson on the same day whose period overlaps `period` (other than `lesson` itself), or null. */
+export function clashingLesson(lesson, period, lessons, periods) {
+  const byId = new Map(periods.map(p => [p.id, p]));
+  return lessons.find(o => o.slot === lesson.slot && byId.has(o.period_id) && overlappingPeriod(period, [byId.get(o.period_id)])) ?? null;
+}
+export function validateDayLessons(lessons, periods) {
+  const byId = new Map(periods.map(p => [p.id, p]));
+  for (const l of lessons) if (byId.has(l.period_id) && clashingLesson(l, byId.get(l.period_id), lessons, periods)) throw new Error('Two lessons on the same day overlap.');
 }
 export function validateLessons(lessons, periods, t) {
   validatePeriods(periods);

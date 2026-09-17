@@ -1,9 +1,11 @@
 // Import pipeline (plan §5): parse → candidate → review → multi-batch draft → activate.
 // Pure functions only; index.html owns the DOM, network and ids.
-import { validateBellTimes, validateLessons, validatePeriods, validTime } from './logic.js';
+import { validateDayLessons, validateLessons, validatePeriods, validTime } from './logic.js';
 
 // `text` and `notes` match the editor's maxlength on subject/room/teacher/period label and notes.
-export const IMPORT_LIMITS = { bytes: 2_000_000, rows: 5_000, periods: 16, text: 80, notes: 500 };
+// Days may run their own bell times, so a timetable can have more periods than any one day uses; lessons stay bounded
+// by the per-day limit (16 a day × 20 weekday slots is the largest import verified through the app endpoint).
+export const IMPORT_LIMITS = { bytes: 2_000_000, rows: 5_000, periods: 32, lessonsPerDay: 16, text: 80, notes: 500 };
 // Batch ceilings enforced by the hub's app database endpoint. `bytes` is UTF-8
 // bytes of the serialized statements, leaving headroom under the 256 KiB request.
 export const BATCH_LIMITS = { statements: 25, params: 100, bytes: 180_000 };
@@ -278,10 +280,41 @@ const intervalKey = p => `${p.start_time}-${p.end_time}`;
 const inside = (inner, outer) => inner.start_time >= outer.start_time && inner.end_time <= outer.end_time;
 const overlaps = (a, b) => a.start_time < b.end_time && b.start_time < a.end_time;
 
+const minutesOf = t => Number(t.slice(0, 2)) * 60 + Number(t.slice(3, 5));
+
 /**
- * Turns parsed entries into a cycle, non-overlapping periods and lessons.
- * An interval that exactly spans two or more shorter intervals is a multi-period
- * lesson and fills each of them; any other overlap is a blocking conflict.
+ * The periods a lesson from its start to its end fills on its day: the period with exactly those times, or else the
+ * chain of shorter periods spanning them (in order, gaps allowed for breaks) that covers the most time, then uses the
+ * most-used periods. Periods overlapping the day's other lessons belong to other days' bell times and are never used.
+ * Null when nothing fits.
+ */
+export function spanningPeriods(lesson, periods, dayLessons = [], usageOf = () => 0) {
+  const exact = periods.find(p => p.start_time === lesson.start_time && p.end_time === lesson.end_time);
+  if (exact) return [exact];
+  const parts = periods.filter(a => inside(a, lesson) && !dayLessons.some(o => overlaps(o, a))).sort((a, b) => a.start_time.localeCompare(b.start_time));
+  const better = (x, y) => !y || x.covered > y.covered || (x.covered === y.covered && x.used > y.used);
+  const memo = new Map();
+  const best = at => {
+    if (at === lesson.end_time) return { covered: 0, used: 0, chain: [] };
+    if (memo.has(at)) return memo.get(at);
+    let found = null;
+    for (const a of parts) {
+      if (a.start_time < at || (at === lesson.start_time && a.start_time !== at)) continue;
+      // A gap is a break only when no other lesson that day falls in it.
+      if (a.start_time > at && dayLessons.some(o => o.start_time < a.start_time && at < o.end_time)) continue;
+      const rest = best(a.end_time);
+      const option = rest && { covered: rest.covered + minutesOf(a.end_time) - minutesOf(a.start_time), used: rest.used + usageOf(intervalKey(a)), chain: [a, ...rest.chain] };
+      if (option && better(option, found)) found = option;
+    }
+    memo.set(at, found);
+    return found;
+  };
+  return best(lesson.start_time)?.chain ?? null;
+}
+
+/**
+ * Turns parsed entries into a cycle, periods and lessons. Periods may overlap when different days use them;
+ * lessons on the same day may not.
  */
 export function buildCandidate(parsed) {
   const errors = [...parsed.errors], warnings = [...parsed.warnings];
@@ -289,10 +322,12 @@ export function buildCandidate(parsed) {
   const empty = { cycle_kind: null, cycle_length: 0, periods: [], lessons: [], errors, warnings, shape: parsed.shape };
   if (errors.length) return { ...empty, errors: errors.slice(0, MAX_ERRORS), errorCount: errors.length };
   if (!entries.length) return { ...empty, errors: ['No lessons found.'], errorCount: 1 };
-  for (const e of entries) if (!String(e.subject ?? '').trim()) errors.push(`Row ${e.line}: a lesson has a room or teacher but no subject.`);
+  // CSV entries point at a row; calendar entries carry their own `ref` ("Week A · Mon 08:30–09:20").
+  const where = e => e.ref ?? `Row ${e.line}`;
+  for (const e of entries) if (!String(e.subject ?? '').trim()) errors.push(`${where(e)}: a lesson has a room or teacher but no subject.`);
   for (const e of entries) for (const field of ['subject', 'room', 'teacher', 'label', 'notes']) {
     const max = field === 'notes' ? IMPORT_LIMITS.notes : IMPORT_LIMITS.text;
-    if (String(e[field] ?? '').length > max) errors.push(`Row ${e.line}: ${field === 'label' ? 'period name' : field} is longer than ${max} characters.`);
+    if (String(e[field] ?? '').length > max) errors.push(`${where(e)}: ${field === 'label' ? 'period name' : field} is longer than ${max} characters.`);
   }
   if (errors.length) return { ...empty, errors: errors.slice(0, MAX_ERRORS), errorCount: errors.length };
   const kinds = new Set(entries.map(e => e.kind));
@@ -304,52 +339,83 @@ export function buildCandidate(parsed) {
   const cycle_length = Math.max(min_cycle_length, ...(parsed.declared ?? []).filter(d => d.kind === cycle_kind).map(d => lengthFor(d.slot)));
   if (cycle_kind === 'weekly' && cycle_length > 4) errors.push('Weekly patterns can repeat over at most 4 weeks.');
 
-  const intervals = [...new Map(entries.map(e => [intervalKey(e), { start_time: e.start_time, end_time: e.end_time }])).values()]
-    .sort((a, b) => a.start_time.localeCompare(b.start_time) || a.end_time.localeCompare(b.end_time));
-  const atomic = intervals.filter(i => !intervals.some(o => o !== i && inside(o, i)));
-  for (let i = 0; i < atomic.length; i++) for (let j = i + 1; j < atomic.length; j++) {
-    if (overlaps(atomic[i], atomic[j])) errors.push(`Lessons at ${intervalKey(atomic[i])} and ${intervalKey(atomic[j])} overlap. Use one bell schedule for every day.`);
+  // Days may run their own bell times (a late-start Wednesday), so periods may overlap; lessons on one day may not.
+  // A lesson that exactly spans a chain of shorter intervals (in order, gaps allowed for breaks, none overlapping
+  // another lesson that day) is a multi-period lesson and fills each of them; any other lesson is its own period.
+  // Lessons that overlap on one day are refused by their own times, before any is split over periods: a split leaves
+  // gaps for breaks, and a gap could otherwise hide the other lesson.
+  const reported = new Set();
+  const byStart = [...entries].sort((a, b) => a.slot - b.slot || a.start_time.localeCompare(b.start_time) || a.end_time.localeCompare(b.end_time));
+  for (const [k, a] of byStart.entries()) {
+    for (const b of byStart.slice(k + 1)) {
+      if (b.slot !== a.slot || b.start_time >= a.end_time) break;
+      const pair = `${a.slot}|${intervalKey(a)}|${intervalKey(b)}`;
+      if (intervalKey(a) === intervalKey(b) || reported.has(pair)) continue;
+      reported.add(pair);
+      errors.push(a.ref ? `${a.ref} and ${b.ref} overlap on the same day.` : `Rows ${a.line} and ${b.line} overlap on the same day.`);
+    }
   }
-  const covers = new Map();
-  for (const outer of intervals.filter(i => !atomic.includes(i))) {
-    const parts = atomic.filter(a => inside(a, outer));
-    const partial = atomic.some(a => overlaps(a, outer) && !inside(a, outer));
-    if (partial || parts.length < 2 || parts[0].start_time !== outer.start_time || parts.at(-1).end_time !== outer.end_time) {
-      errors.push(`The lesson at ${intervalKey(outer)} does not line up with the other bell times.`);
-    } else covers.set(intervalKey(outer), parts.map(intervalKey));
+  const usage = new Map(), onSlot = new Map();
+  for (const e of entries) {
+    usage.set(intervalKey(e), (usage.get(intervalKey(e)) ?? 0) + 1);
+    (onSlot.get(e.slot) ?? onSlot.set(e.slot, new Map()).get(e.slot)).set(intervalKey(e), e);
   }
+  const length = e => minutesOf(e.end_time) - minutesOf(e.start_time);
+  const chainFor = (outer, slot) => {
+    const others = [...onSlot.get(slot).values()].filter(e => intervalKey(e) !== intervalKey(outer));
+    const chain = spanningPeriods(outer, [...periodKeys.values()], others, key => usage.get(key) ?? 0);
+    return chain && chain.length > 1 ? chain : null;
+  };
+  // Shortest lessons first, so every period a longer lesson could span is already settled.
+  const covers = new Map(), periodKeys = new Map();
+  for (const e of [...entries].sort((a, b) => length(a) - length(b) || a.start_time.localeCompare(b.start_time))) {
+    const key = intervalKey(e);
+    if (periodKeys.has(key) || covers.has(`${e.slot}|${key}`)) continue;
+    const chain = chainFor(e, e.slot);
+    if (chain) covers.set(`${e.slot}|${key}`, chain.map(intervalKey));
+    else periodKeys.set(key, { start_time: e.start_time, end_time: e.end_time });
+  }
+  const atomic = [...periodKeys.values()].sort((a, b) => a.start_time.localeCompare(b.start_time) || a.end_time.localeCompare(b.end_time));
   if (atomic.length > IMPORT_LIMITS.periods) errors.push(`${atomic.length} different bell periods found; the limit is ${IMPORT_LIMITS.periods}.`);
 
   const labels = new Map();
-  for (const e of entries) if (e.label && !covers.has(intervalKey(e))) {
+  for (const e of entries) if (e.label && !covers.has(`${e.slot}|${intervalKey(e)}`)) {
     const key = intervalKey(e);
     labels.set(key, labels.has(key) && labels.get(key) !== e.label ? null : e.label);
   }
   const early = atomic.filter(p => p.start_time < '07:00');
-  if (early.length) warnings.push(`Lessons at ${early.map(intervalKey).join(', ')} start before 07:00. If these are afternoon times, add pm and preview again.`);
+  // A calendar's times are explicit, so only typed timetables are asked about am/pm; a calendar names its empty days itself.
+  if (early.length && parsed.shape !== 'ics') warnings.push(`Lessons at ${early.map(intervalKey).join(', ')} start before 07:00. If these are afternoon times, add pm and preview again.`);
   if (entries.some(e => e.assumedPm)) warnings.push('Times from 1:00 to 6:59 without am/pm were read as afternoon. Check the bell times below.');
   const periodLabel = (key, n) => { const raw = labels.get(key); return !raw ? `Period ${n}` : /^\d+$/.test(raw) ? `Period ${raw}` : raw; };
   const periods = atomic.map((p, sort_order) => ({ key: intervalKey(p), ...p, sort_order, label: periodLabel(intervalKey(p), sort_order + 1) }));
 
   const cells = new Map();
   for (const e of entries) {
-    for (const period_key of covers.get(intervalKey(e)) ?? [intervalKey(e)]) {
-      const lesson = { slot: e.slot, period_key, subject: e.subject, room: e.room ?? '', teacher: e.teacher ?? '', notes: e.notes ?? '', line: e.line };
+    for (const period_key of covers.get(`${e.slot}|${intervalKey(e)}`) ?? [intervalKey(e)]) {
+      const lesson = { slot: e.slot, period_key, subject: e.subject, room: e.room ?? '', teacher: e.teacher ?? '', notes: e.notes ?? '', line: e.line, ref: e.ref };
       const cell = `${e.slot}|${period_key}`;
       const prior = cells.get(cell);
       if (!prior) cells.set(cell, lesson);
       else if (prior.subject !== lesson.subject || prior.room !== lesson.room || prior.teacher !== lesson.teacher || prior.notes !== lesson.notes) {
-        errors.push(`Rows ${prior.line} and ${e.line} put different lessons in the same slot and period.`);
+        errors.push(prior.ref ? `${prior.ref} and ${e.ref} put different lessons in the same slot and period.` : `Rows ${prior.line} and ${e.line} put different lessons in the same slot and period.`);
       }
     }
   }
   const lessons = [...cells.values()].sort((a, b) => a.slot - b.slot || a.period_key.localeCompare(b.period_key));
+  const perDay = new Map();
+  for (const l of lessons) perDay.set(l.slot, (perDay.get(l.slot) ?? 0) + 1);
+  const crowded = [...perDay].find(([, n]) => n > IMPORT_LIMITS.lessonsPerDay);
+  if (crowded) {
+    const last = lessons.filter(l => l.slot === crowded[0]).sort((a, b) => (a.line ?? 0) - (b.line ?? 0)).at(-1);
+    errors.push(`${last.ref ?? `Row ${last.line}`}: its day has ${crowded[1]} lessons; the limit is ${IMPORT_LIMITS.lessonsPerDay} a day.`);
+  }
   const used = new Set(lessons.map(l => l.slot));
   const days = cycle_kind === 'weekly'
     ? Array.from({ length: cycle_length * 5 }, (_, i) => Math.floor(i / 5) * 7 + (i % 5))
     : Array.from({ length: cycle_length }, (_, i) => i);
   const emptyDays = days.filter(slot => !used.has(slot)).length;
-  if (emptyDays) warnings.push(`${emptyDays} school ${emptyDays === 1 ? 'day has' : 'days have'} no lessons in this import.`);
+  if (emptyDays && parsed.shape !== 'ics') warnings.push(`${emptyDays} school ${emptyDays === 1 ? 'day has' : 'days have'} no lessons in this import.`);
   return { shape: parsed.shape, cycle_kind, cycle_length, min_cycle_length, periods, lessons, errors: errors.slice(0, MAX_ERRORS), errorCount: errors.length, warnings };
 }
 
@@ -361,8 +427,8 @@ export function candidateRows(candidate, timetable, memberId, uuid) {
   const lessons = candidate.lessons.map(l => ({ id: uuid(), timetable_id: timetable.id, slot: l.slot,
     period_id: byKey.get(l.period_key), subject: l.subject, room: l.room, teacher: l.teacher, color: '', notes: l.notes ?? '', created_by: memberId }));
   validatePeriods(periods);
-  validateBellTimes(periods);
   validateLessons(lessons, periods, timetable);
+  validateDayLessons(lessons, periods);
   return { cycle_kind: timetable.cycle_kind, periods, lessons };
 }
 

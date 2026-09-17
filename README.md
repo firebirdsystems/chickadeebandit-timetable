@@ -20,6 +20,13 @@ named day, week, start, end, subject, room and teacher, or a grid with days
 across the top and times down the side. Every import is reviewed first, with a
 diff when it replaces a student's active timetable. The draft is filled over
 several guarded batches and activated in one; a failed fill discards the draft.
-The parsing and planning code is in `src/import.js`. ICS and synced-calendar
-import, calendar export, photo import and ambient kiosk sharing are later
-phases.
+The parsing and planning code is in `src/import.js`.
+
+A calendar file (.ics) exported from a school portal goes through the same
+review. `src/ics.js` reads its events and repeat rules into household-local
+lessons, and `src/infer.js` works out the weekly or rotating cycle from lessons
+that repeat, using "Day N"/"Week A" labels when the calendar has them. Review
+shows the evidence, the events left out, the weekdays with no lessons (tick the
+ones the school was closed) and whether each school day in the calendar lands
+on the same day in the draft. Synced-calendar import, calendar export, photo
+import and ambient kiosk sharing are later phases.

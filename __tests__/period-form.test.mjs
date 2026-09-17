@@ -1,7 +1,7 @@
 import { readFileSync } from 'node:fs';
 import vm from 'node:vm';
 import { describe, expect, it, vi } from 'vitest';
-import { overlappingPeriod, validatePeriods } from '../src/logic.js';
+import { clashingLesson, columnSlots, validatePeriods } from '../src/logic.js';
 
 const html = readFileSync(new URL('../src/index.html', import.meta.url), 'utf8');
 const savePeriodSource = html.slice(html.indexOf('async function savePeriod('), html.indexOf('async function deletePeriod('));
@@ -11,7 +11,7 @@ const period = (id, sort_order) => ({
   start_time: `0${6 + sort_order}:00`, end_time: `0${6 + sort_order}:45`, created_by: 'adult',
 });
 
-function setup(periods, periodId = '') {
+function setup(periods, periodId = '', lessons = []) {
   const guarded = vi.fn(async () => {});
   const context = vm.createContext({
     // Model the data-period attribute emitted by the bell schedule form.
@@ -21,8 +21,8 @@ function setup(periods, periodId = '') {
     },
     FormData: class { constructor(form) { return Object.entries(form.values); } },
     crypto: { randomUUID: () => 'new-period' },
-    selected: { id: 'tt' }, me: { id: 'adult' },
-    T: 'app_timetable__', periods, validatePeriods, overlappingPeriod, guarded,
+    selected: { id: 'tt', cycle_kind: 'weekly', cycle_length: 1 }, me: { id: 'adult' },
+    T: 'app_timetable__', periods, lessons, validatePeriods, clashingLesson, columnSlots, guarded,
   });
   vm.runInContext(savePeriodSource, context);
   return { save: () => vm.runInContext('savePeriod(form)', context), guarded };
@@ -53,11 +53,22 @@ describe('bell period form saves', () => {
     expect(guarded.mock.calls[0][0][0].params[5]).toBe(0);
   });
 
-  it('refuses a period that overlaps another, naming it', async () => {
-    const clash = { ...period('p9', 9), label: 'Assembly', start_time: '09:30', end_time: '10:00' };
-    const { save, guarded } = setup([clash]);
-    await expect(save()).rejects.toThrow('Updated period overlaps Assembly (09:30–10:00).');
-    expect(guarded).not.toHaveBeenCalled();
+  it('adds a period that overlaps another, for a day with its own bell times', async () => {
+    const other = { ...period('p9', 9), label: 'Wednesday 1', start_time: '09:30', end_time: '10:00' };
+    const { save, guarded } = setup([other]);
+    await save();
+    expect(guarded).toHaveBeenCalledTimes(1);
+  });
+
+  it('refuses new times that make a lesson overlap another on its day, naming both, and allows them when the lessons are on different days', async () => {
+    const assembly = { ...period('p9', 9), label: 'Assembly', start_time: '09:30', end_time: '10:00' };
+    const lesson = (id, slot, period_id, subject) => ({ id, slot, period_id, subject, timetable_id: 'tt' });
+    const sameDay = setup([period('p0', 0), assembly], 'p0', [lesson('a', 0, 'p0', 'Maths'), lesson('b', 0, 'p9', 'Hymn practice')]);
+    await expect(sameDay.save()).rejects.toThrow('Updated period would overlap Assembly (09:30–10:00) on Mon, which has Hymn practice.');
+    expect(sameDay.guarded).not.toHaveBeenCalled();
+    const otherDays = setup([period('p0', 0), assembly], 'p0', [lesson('a', 0, 'p0', 'Maths'), lesson('b', 2, 'p9', 'Hymn practice')]);
+    await otherDays.save();
+    expect(otherDays.guarded).toHaveBeenCalledTimes(1);
   });
 
   it('still saves an unrelated period when two older periods overlap each other', async () => {
