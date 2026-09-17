@@ -141,3 +141,19 @@ export function columnSlots(t) {
   if (t.cycle_kind === 'day_rotation') return Array.from({length:t.cycle_length},(_,i)=>({slot:i,label:`Day ${i+1}`}));
   return Array.from({length:t.cycle_length},(_,week)=>Array.from({length:5},(_,day)=>({slot:week*7+day,label:`${t.cycle_length===1?'':`Week ${String.fromCharCode(65+week)} · `}${['Mon','Tue','Wed','Thu','Fri'][day]}`}))).flat();
 }
+/**
+ * The per-app search convention: the text a lesson is found by. Room and teacher count as well as the subject —
+ * "which days is Mr Smith" and "when are we in Rm 12" are the questions a two-week or ten-day grid hides.
+ * These columns are encrypted at rest; search runs over the decrypted rows the app already holds.
+ */
+export function searchableFields(lesson) {
+  return [lesson.subject, lesson.room, lesson.teacher, lesson.notes];
+}
+/**
+ * The ids of the lessons matching `query`, or null when there is no query (nothing is dimmed).
+ * `match` is hub-sdk's searchMatch, passed in so this module stays importable without the hub.
+ */
+export function matchingLessonIds(lessons, query, match) {
+  if (!String(query ?? '').trim()) return null;
+  return new Set(lessons.filter(l => match(query, searchableFields(l))).map(l => l.id));
+}
