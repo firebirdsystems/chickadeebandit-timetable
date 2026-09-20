@@ -1,5 +1,7 @@
 # Timetable
 
+A [Chickadee Bandit](https://chickadeebandit.com/app-library/timetable) app.
+
 A Chickadee Bandit app for student school schedules. Phase 1 supports weekly
 patterns of 1–4 weeks and rotating cycles of 2–10 school days, bell periods,
 lesson grids, term dates, holidays and day overrides. It shows one summary
