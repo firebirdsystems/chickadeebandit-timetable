@@ -269,6 +269,23 @@
       }
     }
   },
+  "shareable": {
+    "timetable": {
+      "table": "timetables",
+      "title_column": "name",
+      "columns": [
+        { "column": "start_date", "label": "From", "format": "date" },
+        { "column": "end_date", "label": "Until", "format": "date" }
+      ],
+      "visible_where": { "column": "status", "values": ["active"] },
+      "calendar": {
+        "source": {
+          "kind": "sql",
+          "query": "SELECT l.id || ':' || s.day_date AS uid, l.subject AS title, s.day_date AS start_date, p.start_time AS start_time, p.end_time AS end_time, l.room AS location FROM app_timetable__school_days s JOIN app_timetable__lessons l ON l.timetable_id = s.timetable_id AND l.slot = s.slot JOIN app_timetable__periods p ON p.id = l.period_id AND p.timetable_id = s.timetable_id WHERE s.timetable_id = :item_id AND s.day_date BETWEEN :range_start AND :range_end ORDER BY s.day_date, p.start_time LIMIT 2000"
+        }
+      }
+    }
+  },
   "agenda": {
     "kind": "event",
     "label": "School",

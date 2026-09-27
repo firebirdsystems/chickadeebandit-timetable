@@ -25,3 +25,15 @@ describe('timetable projection',()=>{
  it('rejects lessons referencing another timetable period or duplicate cell',()=>{const p=[{id:'p',start_time:'08:00',end_time:'08:50',sort_order:0}];const l={id:'l',timetable_id:'tt',slot:0,period_id:'p',subject:'Math'};expect(()=>validateLessons([l],p,t())).not.toThrow();expect(()=>validateLessons([l,{...l,id:'l2'}],p,t())).toThrow(/one lesson/);expect(()=>validateLessons([{...l,period_id:'other'}],p,t())).toThrow(/another timetable/);});
  it('renders each supported weekly grid column',()=>{expect(columnSlots(t({cycle_length:4}))).toHaveLength(20);expect(columnSlots(t({cycle_kind:'day_rotation',cycle_length:6}))).toHaveLength(6);});
 });
+describe('share gate',()=>{
+ // The hub mint ignores visible_where, so a link minted on a draft or archived timetable would resolve to nothing.
+ it('offers sharing only to adults, only for an active timetable, only when the hub enabled it',async()=>{
+  const {canShareTimetable}=await import('../src/logic.js');
+  const on={enabled:true,adult:true};
+  expect(canShareTimetable(t({status:'active'}),on)).toBe(true);
+  for(const status of ['draft','archived',undefined])expect(canShareTimetable(t({status}),on)).toBe(false);
+  expect(canShareTimetable(t({status:'active'}),{enabled:true,adult:false})).toBe(false);
+  expect(canShareTimetable(t({status:'active'}),{enabled:false,adult:true})).toBe(false);
+  expect(canShareTimetable(null,on)).toBe(false);expect(canShareTimetable(undefined,on)).toBe(false);
+ });
+});

@@ -142,6 +142,13 @@ export function columnSlots(t) {
   return Array.from({length:t.cycle_length},(_,week)=>Array.from({length:5},(_,day)=>({slot:week*7+day,label:`${t.cycle_length===1?'':`Week ${String.fromCharCode(65+week)} · `}${['Mon','Tue','Wed','Thu','Fri'][day]}`}))).flat();
 }
 /**
+ * Whether to offer the Share button for a timetable. Adults only, as the hub mints only for adults, and only for an
+ * ACTIVE timetable: the public page and calendar feed resolve only while `status` is active (manifest
+ * shareable.timetable.visible_where), but the hub's mint does not check that, so a link made on a draft or an archived
+ * timetable would be dead from the start.
+ */
+export function canShareTimetable(t, { enabled, adult }) { return !!enabled && !!adult && t?.status === 'active'; }
+/**
  * The per-app search convention: the text a lesson is found by. Room and teacher count as well as the subject —
  * "which days is Mr Smith" and "when are we in Rm 12" are the questions a two-week or ten-day grid hides.
  * These columns are encrypted at rest; search runs over the decrypted rows the app already holds.
