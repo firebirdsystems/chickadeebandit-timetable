@@ -45,7 +45,9 @@ const refused = () => ({ enabled: true, entitled: false, bundle: null, limits: n
 const calendarUrl = (l) => (typeof l?.calendarUrl === "string" && /^https?:\/\//.test(l.calendarUrl)
   ? l.calendarUrl.replace(/^https?:\/\//, "webcal://") : null);
 
-function harness({ lists = [ok([])], admin = false, confirm = true, create, writeText, calendar = false } = {}) {
+function harness({
+  lists = [ok([])], admin = false, confirm = true, create, writeText, calendar = false, extra = {},
+} = {}) {
   const queue = [...lists];
   const share = {
     enabled: true,
@@ -73,11 +75,14 @@ function harness({ lists = [ok([])], admin = false, confirm = true, create, writ
     memberName: (id) => ({ "adult-2": "Morgan" }[id] ?? ""),
     view,
     ...(calendar ? { calendarUrl } : {}),
+    ...extra,
   });
   return { ui, share, view, push: (l) => queue.push(l) };
 }
 
 const createDisabled = (html) => /data-share-action="create"[^>]*\bdisabled\b/.test(html);
+const typePassword = (ui, value) => ui.handleChange({ target: { dataset: { shareAction: "password" }, value } });
+const selectedExpiry = (html) => html.match(/<option value="(\w+)" selected>/)?.[1];
 
 describe("share panel", () => {
   it("lists only live links for the open item, and enables create once the list is read", async () => {
@@ -311,6 +316,316 @@ describe("share panel", () => {
     await h.ui.open({ id: "item-1", title: "Wifi" });
     expect(h.view.html).not.toContain("copy-calendar");
     expect(h.view.html).not.toContain("share-calendar-note");
+  });
+
+  it("sends a password only when one is typed, and clears it after the mint", async () => {
+    const h = harness({ lists: [ok([]), ok([link({ id: "link-new", url: "https://hub.example/share/new", hasPassword: true })])] });
+    await h.ui.open({ id: "item-1", title: "Wifi" });
+    typePassword(h.ui, "  hunter22  ");
+    await h.ui.create();
+    expect(h.share.create).toHaveBeenCalledWith("thing", "item-1", { expiresInHours: 168, label: "Wifi", password: "hunter22" });
+    expect(h.view.html).toContain('data-testid="share-password-marker"');
+    expect(h.view.html).toMatch(/data-testid="share-password"[^>]*value=""/);
+    h.share.create.mockClear();
+    await h.ui.create();
+    expect(h.share.create.mock.calls[0][2]).not.toHaveProperty("password");
+  });
+
+  it("refuses a password shorter than the hub accepts, without minting", async () => {
+    const h = harness();
+    await h.ui.open({ id: "item-1", title: "Wifi" });
+    typePassword(h.ui, "12345");
+    await h.ui.create();
+    expect(h.share.create).not.toHaveBeenCalled();
+    expect(h.view.html).toContain("at least 6 characters");
+    expect(h.view.html).toMatch(/data-testid="share-password"[^>]*value="12345"/);
+    expect(createDisabled(h.view.html)).toBe(false);
+  });
+
+  it("keeps the typed password when a mint is refused", async () => {
+    const h = harness({ create: vi.fn(async () => { throw new Error("Too many active links"); }) });
+    await h.ui.open({ id: "item-1", title: "Wifi" });
+    typePassword(h.ui, "hunter22");
+    await h.ui.create();
+    expect(h.view.html).toMatch(/data-testid="share-password"[^>]*value="hunter22"/);
+  });
+
+  it("does not carry a typed password into another item's panel", async () => {
+    const h = harness();
+    await h.ui.open({ id: "item-1", title: "Wifi" });
+    typePassword(h.ui, "hunter22");
+    await h.ui.open({ id: "item-2", title: "Door code" });
+    await h.ui.create();
+    expect(h.share.create.mock.calls[0][2]).not.toHaveProperty("password");
+  });
+
+  it("escapes a typed password in the field", async () => {
+    const h = harness();
+    await h.ui.open({ id: "item-1", title: "Wifi" });
+    // Five characters, so the too-short refusal re-renders the field with it.
+    typePassword(h.ui, `"><b>`);
+    await h.ui.create();
+    expect(h.view.html).not.toContain("<b>");
+    expect(h.view.html).toContain("&quot;&gt;&lt;b&gt;");
+  });
+
+  it("marks password links in the list", async () => {
+    const h = harness({ lists: [ok([link(), link({ id: "link-pw", url: "https://hub.example/share/pw", hasPassword: true })])] });
+    await h.ui.open({ id: "item-1", title: "Wifi" });
+    expect(h.view.html.match(/data-testid="share-password-marker"/g)).toHaveLength(1);
+  });
+
+  it("says a password link is no calendar subscription only on a calendar panel", async () => {
+    const cal = harness({ calendar: true });
+    await cal.ui.open({ id: "item-1", title: "Soccer" });
+    expect(cal.view.html).toContain("can’t be used as a calendar subscription");
+    const page = harness();
+    await page.ui.open({ id: "item-1", title: "Wifi" });
+    expect(page.view.html).not.toContain("calendar subscription");
+  });
+
+  it("mints writable links, and says what a visitor can do, only when asked", async () => {
+    const h = harness({ extra: { writable: true, writableVerb: "tick off tasks" } });
+    await h.ui.open({ id: "item-1", title: "Sit" });
+    expect(h.view.html).toContain("view this thing and tick off tasks");
+    await h.ui.create();
+    expect(h.share.create.mock.calls[0][2]).toMatchObject({ writable: true });
+    const ro = harness();
+    await ro.ui.open({ id: "item-1", title: "Wifi" });
+    expect(ro.view.html).not.toContain("view this thing and");
+    await ro.ui.create();
+    expect(ro.share.create.mock.calls[0][2]).not.toHaveProperty("writable");
+  });
+
+  it("offers the item's own expiry first and selects it", async () => {
+    const expiryFor = vi.fn((item) => (item.endsOn ? { hours: 100, label: "Until Oct 11" } : null));
+    const h = harness({ extra: { expiryFor } });
+    await h.ui.open({ id: "item-1", title: "Sit", endsOn: "2026-10-10" });
+    expect(expiryFor).toHaveBeenCalledWith(expect.objectContaining({ id: "item-1", endsOn: "2026-10-10" }));
+    expect(h.view.html.indexOf("Until Oct 11")).toBeLessThan(h.view.html.indexOf("1 day"));
+    expect(selectedExpiry(h.view.html)).toBe("own");
+    await h.ui.create();
+    expect(h.share.create.mock.calls[0][2].expiresInHours).toBe(100);
+    // Another item without its own choice falls back to the default.
+    await h.ui.open({ id: "item-2", title: "Other" });
+    expect(h.view.html).not.toContain("Until Oct 11");
+    expect(selectedExpiry(h.view.html)).toBe("168");
+  });
+
+  it("ignores an item expiry that is missing, malformed or throws", async () => {
+    for (const expiryFor of [
+      () => ({ hours: 0, label: "Now" }),
+      () => ({ hours: 12.5, label: "Half" }),
+      () => ({ hours: 48 }),
+      () => { throw new Error("bad date"); },
+    ]) {
+      const h = harness({ extra: { expiryFor } });
+      await h.ui.open({ id: "item-1", title: "Sit" });
+      expect(selectedExpiry(h.view.html)).toBe("168");
+    }
+  });
+
+  it("marks links that accept submissions", async () => {
+    const h = harness({ lists: [ok([link(), link({ id: "link-w", url: "https://hub.example/share/w", writable: true })])] });
+    await h.ui.open({ id: "item-1", title: "Sit" });
+    expect(h.view.html.match(/data-testid="share-writable-marker"/g)).toHaveLength(1);
+  });
+
+  it("locks the password field while a mint is out, and clears it only once sent", async () => {
+    const minting = deferred();
+    const h = harness({ create: vi.fn(() => minting.promise) });
+    await h.ui.open({ id: "item-1", title: "Wifi" });
+    typePassword(h.ui, "hunter22");
+    const creating = h.ui.create();
+    expect(h.view.html).toMatch(/data-testid="share-password"[^>]*\bdisabled\b/);
+    minting.resolve({ id: "link-new", url: "https://hub.example/share/new", expiresAt: LATER, hasPassword: true });
+    await creating;
+    expect(h.view.html).toMatch(/data-testid="share-password"[^>]*value=""/);
+    expect(h.view.html).not.toMatch(/data-testid="share-password"[^>]*\bdisabled\b/);
+  });
+
+  it("refuses a password longer than the hub accepts, without minting", async () => {
+    const h = harness();
+    await h.ui.open({ id: "item-1", title: "Wifi" });
+    typePassword(h.ui, "x".repeat(257));
+    await h.ui.create();
+    expect(h.share.create).not.toHaveBeenCalled();
+    expect(h.view.html).toContain("at most 256 characters");
+  });
+
+  it("asks the item for its expiry again at mint time", async () => {
+    let hours = 100;
+    const h = harness({ extra: { expiryFor: () => ({ hours, label: "Until Oct 11" }) } });
+    await h.ui.open({ id: "item-1", title: "Sit" });
+    hours = 97; // three hours pass with the panel open
+    await h.ui.create();
+    expect(h.share.create.mock.calls[0][2].expiresInHours).toBe(97);
+  });
+
+  it("keeps a preset the member picked over the item's own choice", async () => {
+    const h = harness({ extra: { expiryFor: () => ({ hours: 100, label: "Until Oct 11" }) } });
+    await h.ui.open({ id: "item-1", title: "Sit" });
+    h.ui.handleChange({ target: { dataset: { shareAction: "expiry" }, value: "24" } });
+    await h.ui.create();
+    expect(h.share.create.mock.calls[0][2].expiresInHours).toBe(24);
+  });
+
+  it("refuses to mint when the item's own expiry has passed since the panel opened, then drops it", async () => {
+    let choice = { hours: 3, label: "Until the sit ends" };
+    const h = harness({ extra: { expiryFor: () => choice } });
+    await h.ui.open({ id: "item-1", title: "Sit" });
+    choice = null; // the end went by with the panel open
+    await h.ui.create();
+    expect(h.share.create).not.toHaveBeenCalled();
+    expect(h.view.html).toContain("“Until the sit ends” has already passed");
+    expect(h.view.html).not.toContain(">Until the sit ends<");
+    expect(selectedExpiry(h.view.html)).toBe("168");
+  });
+
+  it("offers no password on a lapsed plan, whose mint would refuse one", async () => {
+    const lapsed = { ...ok([]), entitled: false };
+    const h = harness({ lists: [lapsed] });
+    await h.ui.open({ id: "item-1", title: "Wifi" });
+    expect(h.view.html).not.toContain('data-testid="share-password"');
+    expect(h.view.html).not.toContain("send it separately");
+    await h.ui.create();
+    expect(h.share.create.mock.calls[0][2]).not.toHaveProperty("password");
+  });
+
+  it("offers no password before the list read says the plan allows one", async () => {
+    const read = deferred();
+    const h = harness({ lists: [read.promise] });
+    const opening = h.ui.open({ id: "item-1", title: "Wifi" });
+    expect(h.view.html).not.toContain('data-testid="share-password"');
+    read.resolve(ok([]));
+    await opening;
+    expect(h.view.html).toContain('data-testid="share-password"');
+  });
+
+  it("refuses a typed password once a re-read says the plan lapsed, rather than minting an open link", async () => {
+    const lapsed = { ...ok([]), entitled: false };
+    const h = harness({ lists: [ok([]), lapsed] });
+    await h.ui.open({ id: "item-1", title: "Wifi" });
+    typePassword(h.ui, "hunter22");
+    await h.ui.revoke("missing"); // any action that re-reads the list
+    await h.ui.create();
+    expect(h.share.create).not.toHaveBeenCalled();
+    expect(h.view.html).toContain("Passwords need an active plan");
+  });
+
+  it("switches to the lapsed state when a mint is refused for the plan", async () => {
+    const refusedForPlan = Object.assign(new Error("Password protection requires an active plan"), { missingCapability: true });
+    const h = harness({ create: vi.fn(async () => { throw refusedForPlan; }) });
+    await h.ui.open({ id: "item-1", title: "Wifi" });
+    typePassword(h.ui, "hunter22");
+    await h.ui.create();
+    expect(h.view.html).toContain("requires an active plan");
+    // The field stays while it holds text, so the member can clear it; a second
+    // Create is not a dead end.
+    expect(h.view.html).toMatch(/data-testid="share-password"[^>]*value="hunter22"/);
+    await h.ui.create();
+    expect(h.view.html).toContain("Passwords need an active plan");
+    typePassword(h.ui, "");
+    h.share.create.mockResolvedValueOnce({ id: "link-new", url: "https://hub.example/share/new", expiresAt: LATER });
+    await h.ui.create();
+    expect(h.share.create.mock.calls.at(-1)[2]).not.toHaveProperty("password");
+  });
+
+  it("gives every reason for a refusal at once", async () => {
+    let choice = { hours: 3, label: "Until the sit ends" };
+    const h = harness({ extra: { expiryFor: () => choice } });
+    await h.ui.open({ id: "item-1", title: "Sit" });
+    choice = null;
+    typePassword(h.ui, "12345");
+    await h.ui.create();
+    expect(h.view.html).toContain("has already passed");
+    expect(h.view.html).toContain("at least 6 characters");
+  });
+
+  it("refuses a lapsed writable mint in create() itself, not only by the disabled button", async () => {
+    const h = harness({ lists: [{ ...ok([]), entitled: false }], extra: { writable: true, writableVerb: "tick off tasks" } });
+    await h.ui.open({ id: "item-1", title: "Sit" });
+    expect(h.view.html).not.toContain("view this thing and tick off tasks");
+    await h.ui.create();
+    expect(h.share.create).not.toHaveBeenCalled();
+  });
+
+  it("never offers or mints an item expiry longer than any link can last", async () => {
+    const hours = { v: 9000 };
+    const h = harness({ extra: { expiryFor: () => ({ hours: hours.v, label: "Until the sit ends" }) } });
+    await h.ui.open({ id: "item-1", title: "Sit" });
+    expect(h.view.html).not.toContain("Until the sit ends");
+    hours.v = 100;
+    await h.ui.open({ id: "item-1", title: "Sit" });
+    hours.v = 9000; // moved past a year while the panel was open
+    await h.ui.create();
+    expect(h.share.create).not.toHaveBeenCalled();
+    expect(h.view.html).toContain("more than a year away");
+  });
+
+  it("tells a preset apart from the item's own choice with the same hours", async () => {
+    const hours = { v: 168 };
+    const h = harness({ extra: { expiryFor: () => ({ hours: hours.v, label: "Until the sit ends" }) } });
+    await h.ui.open({ id: "item-1", title: "Sit" });
+    h.ui.handleChange({ target: { dataset: { shareAction: "expiry" }, value: "168" } });
+    hours.v = 5; // the item's moment moves; the member picked "7 days", not it
+    await h.ui.create();
+    expect(h.share.create.mock.calls[0][2].expiresInHours).toBe(168);
+  });
+
+  it("refuses an item expiry that grew past a lapsed plan's 30 days while the panel was open", async () => {
+    const hours = { v: 100 };
+    const h = harness({
+      lists: [{ ...ok([]), entitled: false }],
+      extra: { expiryFor: () => ({ hours: hours.v, label: "Until the sit ends" }) },
+    });
+    await h.ui.open({ id: "item-1", title: "Sit" });
+    expect(selectedExpiry(h.view.html)).toBe("own");
+    hours.v = 960;
+    await h.ui.create();
+    expect(h.share.create).not.toHaveBeenCalled();
+    expect(h.view.html).toContain("more than 30 days away");
+    expect(selectedExpiry(h.view.html)).toBe("168");
+  });
+
+  it("keeps a writable panel's Create off on a lapsed plan, and says why", async () => {
+    const h = harness({ lists: [{ ...ok([]), entitled: false }], extra: { writable: true, writableVerb: "tick off tasks" } });
+    await h.ui.open({ id: "item-1", title: "Sit" });
+    expect(h.view.html).toContain('data-testid="share-plan-needed"');
+    expect(h.view.html).toContain("tick off tasks");
+    expect(createDisabled(h.view.html)).toBe(true);
+  });
+
+  it("does not offer an item expiry past 30 days on a lapsed plan", async () => {
+    const h = harness({
+      lists: [{ ...ok([]), entitled: false }],
+      extra: { expiryFor: () => ({ hours: 1000, label: "Until the sit ends" }) },
+    });
+    await h.ui.open({ id: "item-1", title: "Sit" });
+    expect(h.view.html).not.toContain("Until the sit ends");
+    expect(selectedExpiry(h.view.html)).toBe("168");
+    await h.ui.create();
+    expect(h.share.create.mock.calls[0][2].expiresInHours).toBe(168);
+  });
+
+  it("refuses a password of only spaces rather than minting an open link", async () => {
+    const h = harness();
+    await h.ui.open({ id: "item-1", title: "Wifi" });
+    typePassword(h.ui, "      ");
+    await h.ui.create();
+    expect(h.share.create).not.toHaveBeenCalled();
+    expect(h.view.html).toContain("can’t be only spaces");
+  });
+
+  it("keeps the writable marker on a link shown from the mint reply", async () => {
+    const h = harness({
+      lists: [ok([]), refused()],
+      extra: { writable: true },
+      create: vi.fn(async () => ({ id: "link-new", url: "https://hub.example/share/new", expiresAt: LATER, writable: true })),
+    });
+    await h.ui.open({ id: "item-1", title: "Sit" });
+    await h.ui.create();
+    expect(h.view.html).toContain('data-testid="share-writable-marker"');
   });
 
   it("routes delegated clicks by data attribute", async () => {
