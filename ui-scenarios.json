@@ -1,0 +1,241 @@
+{
+  "scenarios": [
+    {
+      "name": "Share renders only for an adult, and only on an active timetable — never on a draft, never for the student it belongs to",
+      "members": {
+        "grown": "adult",
+        "kid": "child"
+      },
+      "steps": [
+        {
+          "action": "seedRaw",
+          "sql": "INSERT INTO app_timetable__timetables (id,member_id,name,cycle_kind,cycle_length,anchor_date,start_date,end_date,status,created_by,created_at,updated_at) VALUES ('tt-active',?,?,'weekly',2,'2026-09-14','2026-09-14','2027-07-16','active',?,'2026-09-01T09:00:00Z','2026-09-01T09:00:00Z')",
+          "params": [
+            "{{kid}}",
+            "Year 7",
+            "{{grown}}"
+          ]
+        },
+        {
+          "action": "seedRaw",
+          "sql": "INSERT INTO app_timetable__timetables (id,member_id,name,cycle_kind,cycle_length,anchor_date,start_date,end_date,status,created_by,created_at,updated_at) VALUES ('tt-draft',?,?,'weekly',2,'2026-09-14','2026-09-14','2027-07-16','draft',?,'2026-09-02T09:00:00Z','2026-09-02T09:00:00Z')",
+          "params": [
+            "{{kid}}",
+            "Next term",
+            "{{grown}}"
+          ]
+        },
+        {
+          "action": "open",
+          "as": "grown"
+        },
+        {
+          "action": "expectVisible",
+          "as": "grown",
+          "selector": "[data-testid=\"timetable-detail\"][data-timetable-id=\"tt-active\"][data-status=\"active\"]"
+        },
+        {
+          "action": "expectVisible",
+          "as": "grown",
+          "selector": "[data-testid=\"timetable-detail\"][data-timetable-id=\"tt-active\"] [data-testid=\"timetable-share\"]"
+        },
+        {
+          "action": "expectVisible",
+          "as": "grown",
+          "selector": "[data-testid=\"timetable-row\"][data-timetable-id=\"tt-draft\"][data-status=\"draft\"] [data-testid=\"timetable-open\"]"
+        },
+        {
+          "action": "click",
+          "as": "grown",
+          "selector": "[data-testid=\"timetable-row\"][data-timetable-id=\"tt-draft\"] [data-testid=\"timetable-open\"]"
+        },
+        {
+          "action": "waitFor",
+          "as": "grown",
+          "selector": "[data-testid=\"timetable-detail\"][data-timetable-id=\"tt-draft\"][data-status=\"draft\"]"
+        },
+        {
+          "action": "expectVisible",
+          "as": "grown",
+          "selector": "[data-testid=\"timetable-detail\"][data-timetable-id=\"tt-draft\"] [data-activate]"
+        },
+        {
+          "action": "expectCount",
+          "as": "grown",
+          "selector": "[data-testid=\"timetable-detail\"][data-timetable-id=\"tt-draft\"] [data-testid=\"timetable-share\"]",
+          "count": 0
+        },
+        {
+          "action": "open",
+          "as": "kid"
+        },
+        {
+          "action": "expectVisible",
+          "as": "kid",
+          "selector": "[data-testid=\"timetable-detail\"][data-timetable-id=\"tt-active\"][data-status=\"active\"]"
+        },
+        {
+          "action": "expectVisible",
+          "as": "kid",
+          "selector": "[data-testid=\"timetable-detail\"][data-timetable-id=\"tt-active\"] [data-archive]"
+        },
+        {
+          "action": "expectCount",
+          "as": "kid",
+          "selector": "[data-testid=\"timetable-detail\"][data-timetable-id=\"tt-active\"] [data-testid=\"timetable-share\"]",
+          "count": 0
+        }
+      ]
+    },
+    {
+      "name": "the grid lays lessons out by cycle slot, blocks a cell an overlapping lesson already fills, and search highlights by teacher",
+      "members": {
+        "grown": "adult"
+      },
+      "steps": [
+        {
+          "action": "seedRaw",
+          "sql": "INSERT INTO app_timetable__timetables (id,member_id,name,cycle_kind,cycle_length,anchor_date,start_date,end_date,status,created_by,created_at,updated_at) VALUES ('tt-grid',?,?,'weekly',2,'2026-09-14','2026-09-14','2027-07-16','active',?,'2026-09-01T09:00:00Z','2026-09-01T09:00:00Z')",
+          "params": [
+            "{{grown}}",
+            "School",
+            "{{grown}}"
+          ]
+        },
+        {
+          "action": "seedRaw",
+          "sql": "INSERT INTO app_timetable__periods (id,timetable_id,label,start_time,end_time,sort_order,created_by) VALUES ('p-one','tt-grid',?,?,?,0,?)",
+          "params": [
+            "Period 1",
+            "08:00",
+            "09:00",
+            "{{grown}}"
+          ]
+        },
+        {
+          "action": "seedRaw",
+          "sql": "INSERT INTO app_timetable__periods (id,timetable_id,label,start_time,end_time,sort_order,created_by) VALUES ('p-late','tt-grid',?,?,?,1,?)",
+          "params": [
+            "Late start",
+            "08:30",
+            "09:30",
+            "{{grown}}"
+          ]
+        },
+        {
+          "action": "seedRaw",
+          "sql": "INSERT INTO app_timetable__lessons (id,timetable_id,slot,period_id,subject,room,teacher,created_by) VALUES ('l-maths','tt-grid',0,'p-one',?,?,?,?)",
+          "params": [
+            "Maths",
+            "Rm 12",
+            "Ms Lee",
+            "{{grown}}"
+          ]
+        },
+        {
+          "action": "seedRaw",
+          "sql": "INSERT INTO app_timetable__lessons (id,timetable_id,slot,period_id,subject,room,teacher,created_by) VALUES ('l-chem','tt-grid',7,'p-late',?,?,?,?)",
+          "params": [
+            "Chemistry",
+            "Rm 12",
+            "Mr Smith",
+            "{{grown}}"
+          ]
+        },
+        {
+          "action": "open",
+          "as": "grown"
+        },
+        {
+          "action": "expectVisible",
+          "as": "grown",
+          "selector": "[data-testid=\"timetable-detail\"][data-timetable-id=\"tt-grid\"][data-status=\"active\"]"
+        },
+        {
+          "action": "expectVisible",
+          "as": "grown",
+          "selector": "[data-testid=\"lesson-cell\"][data-slot=\"0\"][data-period-id=\"p-one\"][data-cell-state=\"lesson\"]"
+        },
+        {
+          "action": "expectText",
+          "as": "grown",
+          "selector": "[data-testid=\"lesson-cell\"][data-slot=\"0\"][data-period-id=\"p-one\"]",
+          "text": "Maths"
+        },
+        {
+          "action": "expectText",
+          "as": "grown",
+          "selector": "[data-testid=\"lesson-cell\"][data-slot=\"7\"][data-period-id=\"p-late\"][data-cell-state=\"lesson\"]",
+          "text": "Chemistry"
+        },
+        {
+          "action": "expectVisible",
+          "as": "grown",
+          "selector": "[data-testid=\"lesson-cell\"][data-slot=\"0\"][data-period-id=\"p-late\"]"
+        },
+        {
+          "action": "expectCount",
+          "as": "grown",
+          "selector": "[data-testid=\"lesson-cell\"][data-slot=\"0\"][data-period-id=\"p-late\"] [data-testid=\"lesson-cell-button\"]",
+          "count": 0
+        },
+        {
+          "action": "expectText",
+          "as": "grown",
+          "selector": "[data-testid=\"lesson-cell\"][data-slot=\"0\"][data-period-id=\"p-late\"][data-cell-state=\"covered\"]",
+          "text": "Covered by Maths"
+        },
+        {
+          "action": "expectText",
+          "as": "grown",
+          "selector": "[data-testid=\"lesson-cell\"][data-slot=\"7\"][data-period-id=\"p-one\"][data-cell-state=\"covered\"]",
+          "text": "Covered by Chemistry"
+        },
+        {
+          "action": "expectVisible",
+          "as": "grown",
+          "selector": "[data-testid=\"lesson-cell\"][data-slot=\"1\"][data-period-id=\"p-late\"][data-cell-state=\"empty\"] [data-testid=\"lesson-cell-button\"]"
+        },
+        {
+          "action": "expectVisible",
+          "as": "grown",
+          "selector": "[data-testid=\"lesson-search\"]"
+        },
+        {
+          "action": "fill",
+          "as": "grown",
+          "selector": "[data-testid=\"lesson-search\"]",
+          "value": "Smith"
+        },
+        {
+          "action": "expectVisible",
+          "as": "grown",
+          "selector": "[data-testid=\"lesson-cell\"][data-slot=\"7\"][data-period-id=\"p-late\"].match"
+        },
+        {
+          "action": "expectCount",
+          "as": "grown",
+          "selector": "[data-testid=\"lesson-cell\"][data-slot=\"0\"][data-period-id=\"p-one\"].match",
+          "count": 0
+        },
+        {
+          "action": "expectVisible",
+          "as": "grown",
+          "selector": "[data-testid=\"lesson-cell\"][data-slot=\"0\"][data-period-id=\"p-one\"].dim"
+        },
+        {
+          "action": "expectCount",
+          "as": "grown",
+          "selector": "[data-testid=\"lesson-cell\"].match",
+          "count": 1
+        },
+        {
+          "action": "expectText",
+          "as": "grown",
+          "selector": "#lessonSearchCount",
+          "text": "1 lesson matches"
+        }
+      ]
+    }
+  ]
+}
