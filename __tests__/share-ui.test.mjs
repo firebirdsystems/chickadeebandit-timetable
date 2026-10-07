@@ -318,6 +318,19 @@ describe("share panel", () => {
     expect(h.view.html).not.toContain("share-calendar-note");
   });
 
+  it("marks a password and a writable link with a glyph when the app passes one, and in words alone when it does not", async () => {
+    const lists = [ok([link({ hasPassword: true, writable: true })])];
+    const drawn = harness({ lists, extra: { glyph: (name) => `<svg data-glyph="${name}"></svg>` } });
+    await drawn.ui.open({ id: "item-1", title: "Wifi" });
+    expect(drawn.view.html).toContain('data-testid="share-password-marker"><svg data-glyph="lock"></svg> password</span>');
+    expect(drawn.view.html).toContain('data-testid="share-writable-marker"><svg data-glyph="pencil"></svg> accepts submissions</span>');
+
+    const plain = harness({ lists });
+    await plain.ui.open({ id: "item-1", title: "Wifi" });
+    expect(plain.view.html).toContain('data-testid="share-password-marker">password</span>');
+    expect(plain.view.html).toContain('data-testid="share-writable-marker">accepts submissions</span>');
+  });
+
   it("sends a password only when one is typed, and clears it after the mint", async () => {
     const h = harness({ lists: [ok([]), ok([link({ id: "link-new", url: "https://hub.example/share/new", hasPassword: true })])] });
     await h.ui.open({ id: "item-1", title: "Wifi" });

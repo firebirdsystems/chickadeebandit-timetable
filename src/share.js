@@ -29,6 +29,9 @@
  * @param deps.scopeHtml      (item) => trusted HTML saying what a link exposes
  *                            and what stays in the household, or ""
  * @param deps.esc            HTML escaper
+ * @param deps.glyph          optional — glyph from the hub SDK, to mark a
+ *                            link's password and submissions notes; omit it
+ *                            and the notes are words alone
  * @param deps.confirm        async (message, opts) => boolean
  * @param deps.writeText      clipboard writer
  * @param deps.activeLinks    activeShareLinks from the hub SDK
@@ -54,6 +57,8 @@
  *                            item up by id if it can change meanwhile
  */
 export function createShareUi(deps) {
+  /** A hub glyph ahead of a note's words, when the app passed one in. */
+  const mark = (name) => (deps.glyph ? `${deps.glyph(name)} ` : "");
   /** { id, title } of the item the open panel is for, or null when closed. */
   let target = null;
   /** The item object open() was given, for deps.expiryFor at mint time. */
@@ -134,8 +139,8 @@ export function createShareUi(deps) {
       const mine = l.createdBy === me?.id;
       const calendar = calendarUrlOf(l);
       const by = mine ? "" : ` · shared by ${esc(deps.memberName(l.createdBy) || "another adult")}`;
-      const locked = l.hasPassword ? ` · <span data-testid="share-password-marker">🔒 password</span>` : "";
-      const writes = l.writable ? ` · <span data-testid="share-writable-marker">✎ accepts submissions</span>` : "";
+      const locked = l.hasPassword ? ` · <span data-testid="share-password-marker">${mark("lock")}password</span>` : "";
+      const writes = l.writable ? ` · <span data-testid="share-writable-marker">${mark("pencil")}accepts submissions</span>` : "";
       return `
       <div class="share-row" data-testid="share-row">
         <input readonly class="share-url" value="${esc(l.url)}" onclick="this.select()" aria-label="Share link" />
