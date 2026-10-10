@@ -33,6 +33,9 @@
   "preload": {
     "timetables": {
       "sql": "SELECT * FROM app_timetable__timetables WHERE status = 'active' ORDER BY created_at, id LIMIT 20"
+    },
+    "drafts": {
+      "sql": "SELECT * FROM app_timetable__timetables WHERE status = 'draft' ORDER BY created_at, id LIMIT 50"
     }
   },
   "db_plaintext_columns": [

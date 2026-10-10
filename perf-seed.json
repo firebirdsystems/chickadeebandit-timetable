@@ -1,0 +1,2231 @@
+{
+  "seed": [
+    {
+      "sql": "INSERT INTO app_timetable__timetables (id, member_id, name, cycle_kind, cycle_length, anchor_date, start_date, end_date, override_consumes_cycle_day, status, revision, export_mode, created_by, created_at, updated_at) VALUES (?, ?, ?, ?, ?, date('now','weekday 0','-6 days','-35 days'), date('now','weekday 0','-6 days','-35 days'), date('now','weekday 0','-6 days','+245 days'), ?, ?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-45 days','+0 minutes'), strftime('%Y-%m-%dT%H:%M:%fZ','now','-25 days','+0 minutes'))",
+      "params": [
+        "perf-tt-kid",
+        "{{child}}",
+        "Year 7 Autumn Term",
+        "weekly",
+        2,
+        0,
+        "active",
+        14,
+        "off",
+        "{{me}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_timetable__periods (id, timetable_id, label, start_time, end_time, sort_order, created_by) VALUES (?, ?, ?, ?, ?, ?, ?)",
+      "params": [
+        "perf-kid-p1",
+        "perf-tt-kid",
+        "Period 1",
+        "08:50",
+        "09:40",
+        0,
+        "{{me}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_timetable__periods (id, timetable_id, label, start_time, end_time, sort_order, created_by) VALUES (?, ?, ?, ?, ?, ?, ?)",
+      "params": [
+        "perf-kid-p2",
+        "perf-tt-kid",
+        "Period 2",
+        "09:40",
+        "10:30",
+        1,
+        "{{me}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_timetable__periods (id, timetable_id, label, start_time, end_time, sort_order, created_by) VALUES (?, ?, ?, ?, ?, ?, ?)",
+      "params": [
+        "perf-kid-p3",
+        "perf-tt-kid",
+        "Period 3",
+        "10:50",
+        "11:40",
+        2,
+        "{{me}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_timetable__periods (id, timetable_id, label, start_time, end_time, sort_order, created_by) VALUES (?, ?, ?, ?, ?, ?, ?)",
+      "params": [
+        "perf-kid-p4",
+        "perf-tt-kid",
+        "Period 4",
+        "11:40",
+        "12:30",
+        3,
+        "{{me}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_timetable__periods (id, timetable_id, label, start_time, end_time, sort_order, created_by) VALUES (?, ?, ?, ?, ?, ?, ?)",
+      "params": [
+        "perf-kid-p5",
+        "perf-tt-kid",
+        "Period 5",
+        "13:20",
+        "14:10",
+        4,
+        "{{me}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_timetable__periods (id, timetable_id, label, start_time, end_time, sort_order, created_by) VALUES (?, ?, ?, ?, ?, ?, ?)",
+      "params": [
+        "perf-kid-p6",
+        "perf-tt-kid",
+        "Period 6",
+        "14:10",
+        "15:00",
+        5,
+        "{{me}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_timetable__lessons (id, timetable_id, slot, period_id, subject, room, teacher, color, notes, created_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+      "params": [
+        "perf-les-001",
+        "perf-tt-kid",
+        0,
+        "perf-kid-p1",
+        "Maths",
+        "M4",
+        "Mr Okafor",
+        "#607cae",
+        "Homework due",
+        "{{child}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_timetable__lessons (id, timetable_id, slot, period_id, subject, room, teacher, color, created_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+      "params": [
+        "perf-les-002",
+        "perf-tt-kid",
+        0,
+        "perf-kid-p2",
+        "English",
+        "E2",
+        "Ms Laurent",
+        "#b0634f",
+        "{{child}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_timetable__lessons (id, timetable_id, slot, period_id, subject, room, teacher, color, created_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+      "params": [
+        "perf-les-003",
+        "perf-tt-kid",
+        0,
+        "perf-kid-p3",
+        "Science",
+        "Lab 1",
+        "Dr Patel",
+        "#4f9b6e",
+        "{{child}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_timetable__lessons (id, timetable_id, slot, period_id, subject, room, teacher, color, created_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+      "params": [
+        "perf-les-004",
+        "perf-tt-kid",
+        0,
+        "perf-kid-p4",
+        "History",
+        "H3",
+        "Mr Brandt",
+        "#a8843f",
+        "{{child}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_timetable__lessons (id, timetable_id, slot, period_id, subject, room, teacher, color, created_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+      "params": [
+        "perf-les-005",
+        "perf-tt-kid",
+        0,
+        "perf-kid-p5",
+        "French",
+        "L1",
+        "Mme Roux",
+        "#8a66b3",
+        "{{child}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_timetable__lessons (id, timetable_id, slot, period_id, subject, room, teacher, color, notes, created_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+      "params": [
+        "perf-les-006",
+        "perf-tt-kid",
+        0,
+        "perf-kid-p6",
+        "PE",
+        "Gym",
+        "Coach Diaz",
+        "#6b8f3a",
+        "Bring kit",
+        "{{child}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_timetable__lessons (id, timetable_id, slot, period_id, subject, room, teacher, color, created_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+      "params": [
+        "perf-les-007",
+        "perf-tt-kid",
+        1,
+        "perf-kid-p1",
+        "English",
+        "E2",
+        "Ms Laurent",
+        "#b0634f",
+        "{{me}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_timetable__lessons (id, timetable_id, slot, period_id, subject, room, teacher, color, created_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+      "params": [
+        "perf-les-008",
+        "perf-tt-kid",
+        1,
+        "perf-kid-p2",
+        "Maths",
+        "M4",
+        "Mr Okafor",
+        "#607cae",
+        "{{me}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_timetable__lessons (id, timetable_id, slot, period_id, subject, room, teacher, color, created_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+      "params": [
+        "perf-les-009",
+        "perf-tt-kid",
+        1,
+        "perf-kid-p3",
+        "Geography",
+        "H5",
+        "Ms Ito",
+        "#5a9aa8",
+        "{{me}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_timetable__lessons (id, timetable_id, slot, period_id, subject, room, teacher, color, created_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+      "params": [
+        "perf-les-010",
+        "perf-tt-kid",
+        1,
+        "perf-kid-p4",
+        "Art",
+        "Studio",
+        "Ms Vance",
+        "#c26a9a",
+        "{{me}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_timetable__lessons (id, timetable_id, slot, period_id, subject, room, teacher, color, created_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+      "params": [
+        "perf-les-011",
+        "perf-tt-kid",
+        1,
+        "perf-kid-p5",
+        "Science",
+        "Lab 1",
+        "Dr Patel",
+        "#4f9b6e",
+        "{{me}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_timetable__lessons (id, timetable_id, slot, period_id, subject, room, teacher, color, created_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+      "params": [
+        "perf-les-012",
+        "perf-tt-kid",
+        1,
+        "perf-kid-p6",
+        "Computing",
+        "IT 2",
+        "Ms Novak",
+        "#4a6fa5",
+        "{{me}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_timetable__lessons (id, timetable_id, slot, period_id, subject, room, teacher, color, created_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+      "params": [
+        "perf-les-013",
+        "perf-tt-kid",
+        2,
+        "perf-kid-p1",
+        "Science",
+        "Lab 1",
+        "Dr Patel",
+        "#4f9b6e",
+        "{{me}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_timetable__lessons (id, timetable_id, slot, period_id, subject, room, teacher, color, created_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+      "params": [
+        "perf-les-014",
+        "perf-tt-kid",
+        2,
+        "perf-kid-p2",
+        "French",
+        "L1",
+        "Mme Roux",
+        "#8a66b3",
+        "{{me}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_timetable__lessons (id, timetable_id, slot, period_id, subject, room, teacher, color, created_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+      "params": [
+        "perf-les-015",
+        "perf-tt-kid",
+        2,
+        "perf-kid-p3",
+        "Maths",
+        "M4",
+        "Mr Okafor",
+        "#607cae",
+        "{{me}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_timetable__lessons (id, timetable_id, slot, period_id, subject, room, teacher, color, created_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+      "params": [
+        "perf-les-016",
+        "perf-tt-kid",
+        2,
+        "perf-kid-p4",
+        "English",
+        "E2",
+        "Ms Laurent",
+        "#b0634f",
+        "{{me}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_timetable__lessons (id, timetable_id, slot, period_id, subject, room, teacher, color, created_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+      "params": [
+        "perf-les-017",
+        "perf-tt-kid",
+        2,
+        "perf-kid-p5",
+        "Music",
+        "Music Room",
+        "Mr Halloran",
+        "#b58a2e",
+        "{{me}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_timetable__lessons (id, timetable_id, slot, period_id, subject, room, teacher, color, created_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+      "params": [
+        "perf-les-018",
+        "perf-tt-kid",
+        2,
+        "perf-kid-p6",
+        "Drama",
+        "Hall",
+        "Mr Reyes",
+        "#a05252",
+        "{{me}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_timetable__lessons (id, timetable_id, slot, period_id, subject, room, teacher, color, created_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+      "params": [
+        "perf-les-019",
+        "perf-tt-kid",
+        3,
+        "perf-kid-p1",
+        "History",
+        "H3",
+        "Mr Brandt",
+        "#a8843f",
+        "{{child}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_timetable__lessons (id, timetable_id, slot, period_id, subject, room, teacher, color, created_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+      "params": [
+        "perf-les-020",
+        "perf-tt-kid",
+        3,
+        "perf-kid-p2",
+        "Maths",
+        "M4",
+        "Mr Okafor",
+        "#607cae",
+        "{{child}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_timetable__lessons (id, timetable_id, slot, period_id, subject, room, teacher, color, created_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+      "params": [
+        "perf-les-021",
+        "perf-tt-kid",
+        3,
+        "perf-kid-p3",
+        "English",
+        "E2",
+        "Ms Laurent",
+        "#b0634f",
+        "{{child}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_timetable__lessons (id, timetable_id, slot, period_id, subject, room, teacher, color, created_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+      "params": [
+        "perf-les-022",
+        "perf-tt-kid",
+        3,
+        "perf-kid-p4",
+        "Science",
+        "Lab 1",
+        "Dr Patel",
+        "#4f9b6e",
+        "{{child}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_timetable__lessons (id, timetable_id, slot, period_id, subject, room, teacher, color, notes, created_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+      "params": [
+        "perf-les-023",
+        "perf-tt-kid",
+        3,
+        "perf-kid-p5",
+        "PE",
+        "Gym",
+        "Coach Diaz",
+        "#6b8f3a",
+        "Bring kit",
+        "{{child}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_timetable__lessons (id, timetable_id, slot, period_id, subject, room, teacher, color, created_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+      "params": [
+        "perf-les-024",
+        "perf-tt-kid",
+        3,
+        "perf-kid-p6",
+        "Tutor Time",
+        "T7",
+        "Ms Laurent",
+        "#777f8c",
+        "{{child}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_timetable__lessons (id, timetable_id, slot, period_id, subject, room, teacher, color, created_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+      "params": [
+        "perf-les-025",
+        "perf-tt-kid",
+        4,
+        "perf-kid-p1",
+        "Maths",
+        "M4",
+        "Mr Okafor",
+        "#607cae",
+        "{{me}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_timetable__lessons (id, timetable_id, slot, period_id, subject, room, teacher, color, created_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+      "params": [
+        "perf-les-026",
+        "perf-tt-kid",
+        4,
+        "perf-kid-p2",
+        "Geography",
+        "H5",
+        "Ms Ito",
+        "#5a9aa8",
+        "{{me}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_timetable__lessons (id, timetable_id, slot, period_id, subject, room, teacher, color, created_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+      "params": [
+        "perf-les-027",
+        "perf-tt-kid",
+        4,
+        "perf-kid-p3",
+        "French",
+        "L1",
+        "Mme Roux",
+        "#8a66b3",
+        "{{me}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_timetable__lessons (id, timetable_id, slot, period_id, subject, room, teacher, color, created_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+      "params": [
+        "perf-les-028",
+        "perf-tt-kid",
+        4,
+        "perf-kid-p4",
+        "Computing",
+        "IT 2",
+        "Ms Novak",
+        "#4a6fa5",
+        "{{me}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_timetable__lessons (id, timetable_id, slot, period_id, subject, room, teacher, color, created_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+      "params": [
+        "perf-les-029",
+        "perf-tt-kid",
+        4,
+        "perf-kid-p5",
+        "Art",
+        "Studio",
+        "Ms Vance",
+        "#c26a9a",
+        "{{me}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_timetable__lessons (id, timetable_id, slot, period_id, subject, room, teacher, color, created_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+      "params": [
+        "perf-les-030",
+        "perf-tt-kid",
+        4,
+        "perf-kid-p6",
+        "English",
+        "E2",
+        "Ms Laurent",
+        "#b0634f",
+        "{{me}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_timetable__lessons (id, timetable_id, slot, period_id, subject, room, teacher, color, created_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+      "params": [
+        "perf-les-031",
+        "perf-tt-kid",
+        7,
+        "perf-kid-p1",
+        "English",
+        "E2",
+        "Ms Laurent",
+        "#b0634f",
+        "{{me}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_timetable__lessons (id, timetable_id, slot, period_id, subject, room, teacher, color, created_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+      "params": [
+        "perf-les-032",
+        "perf-tt-kid",
+        7,
+        "perf-kid-p2",
+        "Science",
+        "Lab 1",
+        "Dr Patel",
+        "#4f9b6e",
+        "{{me}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_timetable__lessons (id, timetable_id, slot, period_id, subject, room, teacher, color, created_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+      "params": [
+        "perf-les-033",
+        "perf-tt-kid",
+        7,
+        "perf-kid-p3",
+        "Maths",
+        "M4",
+        "Mr Okafor",
+        "#607cae",
+        "{{me}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_timetable__lessons (id, timetable_id, slot, period_id, subject, room, teacher, color, created_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+      "params": [
+        "perf-les-034",
+        "perf-tt-kid",
+        7,
+        "perf-kid-p4",
+        "Geography",
+        "H5",
+        "Ms Ito",
+        "#5a9aa8",
+        "{{me}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_timetable__lessons (id, timetable_id, slot, period_id, subject, room, teacher, color, created_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+      "params": [
+        "perf-les-035",
+        "perf-tt-kid",
+        7,
+        "perf-kid-p5",
+        "Drama",
+        "Hall",
+        "Mr Reyes",
+        "#a05252",
+        "{{me}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_timetable__lessons (id, timetable_id, slot, period_id, subject, room, teacher, color, notes, created_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+      "params": [
+        "perf-les-036",
+        "perf-tt-kid",
+        7,
+        "perf-kid-p6",
+        "PE",
+        "Gym",
+        "Coach Diaz",
+        "#6b8f3a",
+        "Bring kit",
+        "{{me}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_timetable__lessons (id, timetable_id, slot, period_id, subject, room, teacher, color, created_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+      "params": [
+        "perf-les-037",
+        "perf-tt-kid",
+        8,
+        "perf-kid-p1",
+        "Maths",
+        "M4",
+        "Mr Okafor",
+        "#607cae",
+        "{{child}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_timetable__lessons (id, timetable_id, slot, period_id, subject, room, teacher, color, created_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+      "params": [
+        "perf-les-038",
+        "perf-tt-kid",
+        8,
+        "perf-kid-p2",
+        "History",
+        "H3",
+        "Mr Brandt",
+        "#a8843f",
+        "{{child}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_timetable__lessons (id, timetable_id, slot, period_id, subject, room, teacher, color, created_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+      "params": [
+        "perf-les-039",
+        "perf-tt-kid",
+        8,
+        "perf-kid-p3",
+        "English",
+        "E2",
+        "Ms Laurent",
+        "#b0634f",
+        "{{child}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_timetable__lessons (id, timetable_id, slot, period_id, subject, room, teacher, color, created_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+      "params": [
+        "perf-les-040",
+        "perf-tt-kid",
+        8,
+        "perf-kid-p4",
+        "French",
+        "L1",
+        "Mme Roux",
+        "#8a66b3",
+        "{{child}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_timetable__lessons (id, timetable_id, slot, period_id, subject, room, teacher, color, created_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+      "params": [
+        "perf-les-041",
+        "perf-tt-kid",
+        8,
+        "perf-kid-p5",
+        "Science",
+        "Lab 1",
+        "Dr Patel",
+        "#4f9b6e",
+        "{{child}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_timetable__lessons (id, timetable_id, slot, period_id, subject, room, teacher, color, notes, created_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+      "params": [
+        "perf-les-042",
+        "perf-tt-kid",
+        8,
+        "perf-kid-p6",
+        "Music",
+        "Music Room",
+        "Mr Halloran",
+        "#b58a2e",
+        "Homework due",
+        "{{child}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_timetable__lessons (id, timetable_id, slot, period_id, subject, room, teacher, color, created_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+      "params": [
+        "perf-les-043",
+        "perf-tt-kid",
+        9,
+        "perf-kid-p1",
+        "Art",
+        "Studio",
+        "Ms Vance",
+        "#c26a9a",
+        "{{me}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_timetable__lessons (id, timetable_id, slot, period_id, subject, room, teacher, color, created_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+      "params": [
+        "perf-les-044",
+        "perf-tt-kid",
+        9,
+        "perf-kid-p2",
+        "Maths",
+        "M4",
+        "Mr Okafor",
+        "#607cae",
+        "{{me}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_timetable__lessons (id, timetable_id, slot, period_id, subject, room, teacher, color, created_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+      "params": [
+        "perf-les-045",
+        "perf-tt-kid",
+        9,
+        "perf-kid-p3",
+        "Science",
+        "Lab 1",
+        "Dr Patel",
+        "#4f9b6e",
+        "{{me}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_timetable__lessons (id, timetable_id, slot, period_id, subject, room, teacher, color, created_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+      "params": [
+        "perf-les-046",
+        "perf-tt-kid",
+        9,
+        "perf-kid-p4",
+        "English",
+        "E2",
+        "Ms Laurent",
+        "#b0634f",
+        "{{me}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_timetable__lessons (id, timetable_id, slot, period_id, subject, room, teacher, color, notes, created_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+      "params": [
+        "perf-les-047",
+        "perf-tt-kid",
+        9,
+        "perf-kid-p5",
+        "Computing",
+        "IT 2",
+        "Ms Novak",
+        "#4a6fa5",
+        "Homework due",
+        "{{me}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_timetable__lessons (id, timetable_id, slot, period_id, subject, room, teacher, color, created_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+      "params": [
+        "perf-les-048",
+        "perf-tt-kid",
+        9,
+        "perf-kid-p6",
+        "History",
+        "H3",
+        "Mr Brandt",
+        "#a8843f",
+        "{{me}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_timetable__lessons (id, timetable_id, slot, period_id, subject, room, teacher, color, created_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+      "params": [
+        "perf-les-049",
+        "perf-tt-kid",
+        10,
+        "perf-kid-p1",
+        "French",
+        "L1",
+        "Mme Roux",
+        "#8a66b3",
+        "{{me}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_timetable__lessons (id, timetable_id, slot, period_id, subject, room, teacher, color, created_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+      "params": [
+        "perf-les-050",
+        "perf-tt-kid",
+        10,
+        "perf-kid-p2",
+        "English",
+        "E2",
+        "Ms Laurent",
+        "#b0634f",
+        "{{me}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_timetable__lessons (id, timetable_id, slot, period_id, subject, room, teacher, color, created_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+      "params": [
+        "perf-les-051",
+        "perf-tt-kid",
+        10,
+        "perf-kid-p3",
+        "Maths",
+        "M4",
+        "Mr Okafor",
+        "#607cae",
+        "{{me}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_timetable__lessons (id, timetable_id, slot, period_id, subject, room, teacher, color, notes, created_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+      "params": [
+        "perf-les-052",
+        "perf-tt-kid",
+        10,
+        "perf-kid-p4",
+        "PE",
+        "Gym",
+        "Coach Diaz",
+        "#6b8f3a",
+        "Bring kit",
+        "{{me}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_timetable__lessons (id, timetable_id, slot, period_id, subject, room, teacher, color, created_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+      "params": [
+        "perf-les-053",
+        "perf-tt-kid",
+        10,
+        "perf-kid-p5",
+        "Geography",
+        "H5",
+        "Ms Ito",
+        "#5a9aa8",
+        "{{me}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_timetable__lessons (id, timetable_id, slot, period_id, subject, room, teacher, color, created_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+      "params": [
+        "perf-les-054",
+        "perf-tt-kid",
+        10,
+        "perf-kid-p6",
+        "Tutor Time",
+        "T7",
+        "Ms Laurent",
+        "#777f8c",
+        "{{me}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_timetable__lessons (id, timetable_id, slot, period_id, subject, room, teacher, color, created_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+      "params": [
+        "perf-les-055",
+        "perf-tt-kid",
+        11,
+        "perf-kid-p1",
+        "Science",
+        "Lab 1",
+        "Dr Patel",
+        "#4f9b6e",
+        "{{child}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_timetable__lessons (id, timetable_id, slot, period_id, subject, room, teacher, color, created_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+      "params": [
+        "perf-les-056",
+        "perf-tt-kid",
+        11,
+        "perf-kid-p2",
+        "Maths",
+        "M4",
+        "Mr Okafor",
+        "#607cae",
+        "{{child}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_timetable__lessons (id, timetable_id, slot, period_id, subject, room, teacher, color, notes, created_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+      "params": [
+        "perf-les-057",
+        "perf-tt-kid",
+        11,
+        "perf-kid-p3",
+        "History",
+        "H3",
+        "Mr Brandt",
+        "#a8843f",
+        "Homework due",
+        "{{child}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_timetable__lessons (id, timetable_id, slot, period_id, subject, room, teacher, color, created_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+      "params": [
+        "perf-les-058",
+        "perf-tt-kid",
+        11,
+        "perf-kid-p4",
+        "English",
+        "E2",
+        "Ms Laurent",
+        "#b0634f",
+        "{{child}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_timetable__lessons (id, timetable_id, slot, period_id, subject, room, teacher, color, created_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+      "params": [
+        "perf-les-059",
+        "perf-tt-kid",
+        11,
+        "perf-kid-p5",
+        "Music",
+        "Music Room",
+        "Mr Halloran",
+        "#b58a2e",
+        "{{child}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_timetable__lessons (id, timetable_id, slot, period_id, subject, room, teacher, color, created_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+      "params": [
+        "perf-les-060",
+        "perf-tt-kid",
+        11,
+        "perf-kid-p6",
+        "Art",
+        "Studio",
+        "Ms Vance",
+        "#c26a9a",
+        "{{child}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_timetable__exceptions (id, timetable_id, start_date, end_date, kind, label, created_by) VALUES (?, ?, date('now','weekday 0','-6 days','-28 days'), date('now','weekday 0','-6 days','-28 days'), ?, ?, ?)",
+      "params": [
+        "perf-ex-1",
+        "perf-tt-kid",
+        "no_school",
+        "Bank holiday",
+        "{{me}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_timetable__exceptions (id, timetable_id, start_date, end_date, kind, override_slot, label, created_by) VALUES (?, ?, date('now','weekday 0','-6 days','+8 days'), date('now','weekday 0','-6 days','+8 days'), ?, ?, ?, ?)",
+      "params": [
+        "perf-ex-2",
+        "perf-tt-kid",
+        "day_override",
+        0,
+        "Monday timetable",
+        "{{me}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_timetable__exceptions (id, timetable_id, start_date, end_date, kind, label, created_by) VALUES (?, ?, date('now','weekday 0','-6 days','+14 days'), date('now','weekday 0','-6 days','+18 days'), ?, ?, ?)",
+      "params": [
+        "perf-ex-3",
+        "perf-tt-kid",
+        "no_school",
+        "Half-term break",
+        "{{me}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_timetable__exceptions (id, timetable_id, start_date, end_date, kind, label, created_by) VALUES (?, ?, date('now','weekday 0','-6 days','+49 days'), date('now','weekday 0','-6 days','+49 days'), ?, ?, ?)",
+      "params": [
+        "perf-ex-4",
+        "perf-tt-kid",
+        "no_school",
+        "Teacher training day",
+        "{{me}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_timetable__exceptions (id, timetable_id, start_date, end_date, kind, label, created_by) VALUES (?, ?, date('now','weekday 0','-6 days','+70 days'), date('now','weekday 0','-6 days','+84 days'), ?, ?, ?)",
+      "params": [
+        "perf-ex-5",
+        "perf-tt-kid",
+        "no_school",
+        "Winter break",
+        "{{me}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_timetable__exceptions (id, timetable_id, start_date, end_date, kind, label, created_by) VALUES (?, ?, date('now','weekday 0','-6 days','+133 days'), date('now','weekday 0','-6 days','+137 days'), ?, ?, ?)",
+      "params": [
+        "perf-ex-6",
+        "perf-tt-kid",
+        "no_school",
+        "February half-term",
+        "{{me}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_timetable__exceptions (id, timetable_id, start_date, end_date, kind, label, created_by) VALUES (?, ?, date('now','weekday 0','-6 days','+182 days'), date('now','weekday 0','-6 days','+193 days'), ?, ?, ?)",
+      "params": [
+        "perf-ex-7",
+        "perf-tt-kid",
+        "no_school",
+        "Spring break",
+        "{{me}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_timetable__school_days (id, timetable_id, day_date, slot, materializer_version, created_by) VALUES (?, ?, date('now','weekday 0','-6 days','-7 days'), ?, ?, ?)",
+      "params": [
+        "perf-sd-001",
+        "perf-tt-kid",
+        0,
+        1,
+        "{{me}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_timetable__school_days (id, timetable_id, day_date, slot, materializer_version, created_by) VALUES (?, ?, date('now','weekday 0','-6 days','-6 days'), ?, ?, ?)",
+      "params": [
+        "perf-sd-002",
+        "perf-tt-kid",
+        1,
+        1,
+        "{{me}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_timetable__school_days (id, timetable_id, day_date, slot, materializer_version, created_by) VALUES (?, ?, date('now','weekday 0','-6 days','-5 days'), ?, ?, ?)",
+      "params": [
+        "perf-sd-003",
+        "perf-tt-kid",
+        2,
+        1,
+        "{{me}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_timetable__school_days (id, timetable_id, day_date, slot, materializer_version, created_by) VALUES (?, ?, date('now','weekday 0','-6 days','-4 days'), ?, ?, ?)",
+      "params": [
+        "perf-sd-004",
+        "perf-tt-kid",
+        3,
+        1,
+        "{{me}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_timetable__school_days (id, timetable_id, day_date, slot, materializer_version, created_by) VALUES (?, ?, date('now','weekday 0','-6 days','-3 days'), ?, ?, ?)",
+      "params": [
+        "perf-sd-005",
+        "perf-tt-kid",
+        4,
+        1,
+        "{{me}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_timetable__school_days (id, timetable_id, day_date, slot, materializer_version, created_by) VALUES (?, ?, date('now','weekday 0','-6 days','+0 days'), ?, ?, ?)",
+      "params": [
+        "perf-sd-006",
+        "perf-tt-kid",
+        7,
+        1,
+        "{{me}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_timetable__school_days (id, timetable_id, day_date, slot, materializer_version, created_by) VALUES (?, ?, date('now','weekday 0','-6 days','+1 days'), ?, ?, ?)",
+      "params": [
+        "perf-sd-007",
+        "perf-tt-kid",
+        8,
+        1,
+        "{{me}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_timetable__school_days (id, timetable_id, day_date, slot, materializer_version, created_by) VALUES (?, ?, date('now','weekday 0','-6 days','+2 days'), ?, ?, ?)",
+      "params": [
+        "perf-sd-008",
+        "perf-tt-kid",
+        9,
+        1,
+        "{{me}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_timetable__school_days (id, timetable_id, day_date, slot, materializer_version, created_by) VALUES (?, ?, date('now','weekday 0','-6 days','+3 days'), ?, ?, ?)",
+      "params": [
+        "perf-sd-009",
+        "perf-tt-kid",
+        10,
+        1,
+        "{{me}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_timetable__school_days (id, timetable_id, day_date, slot, materializer_version, created_by) VALUES (?, ?, date('now','weekday 0','-6 days','+4 days'), ?, ?, ?)",
+      "params": [
+        "perf-sd-010",
+        "perf-tt-kid",
+        11,
+        1,
+        "{{me}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_timetable__school_days (id, timetable_id, day_date, slot, materializer_version, created_by) VALUES (?, ?, date('now','weekday 0','-6 days','+7 days'), ?, ?, ?)",
+      "params": [
+        "perf-sd-011",
+        "perf-tt-kid",
+        0,
+        1,
+        "{{me}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_timetable__school_days (id, timetable_id, day_date, slot, label, materializer_version, created_by) VALUES (?, ?, date('now','weekday 0','-6 days','+8 days'), ?, ?, ?, ?)",
+      "params": [
+        "perf-sd-012",
+        "perf-tt-kid",
+        0,
+        "Monday timetable",
+        1,
+        "{{me}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_timetable__school_days (id, timetable_id, day_date, slot, materializer_version, created_by) VALUES (?, ?, date('now','weekday 0','-6 days','+9 days'), ?, ?, ?)",
+      "params": [
+        "perf-sd-013",
+        "perf-tt-kid",
+        2,
+        1,
+        "{{me}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_timetable__school_days (id, timetable_id, day_date, slot, materializer_version, created_by) VALUES (?, ?, date('now','weekday 0','-6 days','+10 days'), ?, ?, ?)",
+      "params": [
+        "perf-sd-014",
+        "perf-tt-kid",
+        3,
+        1,
+        "{{me}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_timetable__school_days (id, timetable_id, day_date, slot, materializer_version, created_by) VALUES (?, ?, date('now','weekday 0','-6 days','+11 days'), ?, ?, ?)",
+      "params": [
+        "perf-sd-015",
+        "perf-tt-kid",
+        4,
+        1,
+        "{{me}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_timetable__school_days (id, timetable_id, day_date, slot, materializer_version, created_by) VALUES (?, ?, date('now','weekday 0','-6 days','+21 days'), ?, ?, ?)",
+      "params": [
+        "perf-sd-016",
+        "perf-tt-kid",
+        0,
+        1,
+        "{{me}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_timetable__school_days (id, timetable_id, day_date, slot, materializer_version, created_by) VALUES (?, ?, date('now','weekday 0','-6 days','+22 days'), ?, ?, ?)",
+      "params": [
+        "perf-sd-017",
+        "perf-tt-kid",
+        1,
+        1,
+        "{{me}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_timetable__school_days (id, timetable_id, day_date, slot, materializer_version, created_by) VALUES (?, ?, date('now','weekday 0','-6 days','+23 days'), ?, ?, ?)",
+      "params": [
+        "perf-sd-018",
+        "perf-tt-kid",
+        2,
+        1,
+        "{{me}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_timetable__school_days (id, timetable_id, day_date, slot, materializer_version, created_by) VALUES (?, ?, date('now','weekday 0','-6 days','+24 days'), ?, ?, ?)",
+      "params": [
+        "perf-sd-019",
+        "perf-tt-kid",
+        3,
+        1,
+        "{{me}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_timetable__school_days (id, timetable_id, day_date, slot, materializer_version, created_by) VALUES (?, ?, date('now','weekday 0','-6 days','+25 days'), ?, ?, ?)",
+      "params": [
+        "perf-sd-020",
+        "perf-tt-kid",
+        4,
+        1,
+        "{{me}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_timetable__timetables (id, member_id, name, cycle_kind, cycle_length, anchor_date, start_date, end_date, override_consumes_cycle_day, status, revision, export_mode, created_by, created_at, updated_at) VALUES (?, ?, ?, ?, ?, date('now','weekday 0','-6 days','-35 days'), date('now','weekday 0','-6 days','-35 days'), date('now','weekday 0','-6 days','+245 days'), ?, ?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-44 days','+0 minutes'), strftime('%Y-%m-%dT%H:%M:%fZ','now','-24 days','+0 minutes'))",
+      "params": [
+        "perf-tt-kid2",
+        "{{child2}}",
+        "Grade 4 Day Rotation",
+        "day_rotation",
+        6,
+        0,
+        "active",
+        6,
+        "off",
+        "{{partner}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_timetable__periods (id, timetable_id, label, start_time, end_time, sort_order, created_by) VALUES (?, ?, ?, ?, ?, ?, ?)",
+      "params": [
+        "perf-kid2-p1",
+        "perf-tt-kid2",
+        "Morning Meeting",
+        "08:30",
+        "08:50",
+        0,
+        "{{partner}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_timetable__periods (id, timetable_id, label, start_time, end_time, sort_order, created_by) VALUES (?, ?, ?, ?, ?, ?, ?)",
+      "params": [
+        "perf-kid2-p2",
+        "perf-tt-kid2",
+        "Block 1",
+        "08:50",
+        "10:00",
+        1,
+        "{{partner}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_timetable__periods (id, timetable_id, label, start_time, end_time, sort_order, created_by) VALUES (?, ?, ?, ?, ?, ?, ?)",
+      "params": [
+        "perf-kid2-p3",
+        "perf-tt-kid2",
+        "Block 2",
+        "10:20",
+        "11:30",
+        2,
+        "{{partner}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_timetable__periods (id, timetable_id, label, start_time, end_time, sort_order, created_by) VALUES (?, ?, ?, ?, ?, ?, ?)",
+      "params": [
+        "perf-kid2-p4",
+        "perf-tt-kid2",
+        "Block 3",
+        "12:20",
+        "13:30",
+        3,
+        "{{partner}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_timetable__periods (id, timetable_id, label, start_time, end_time, sort_order, created_by) VALUES (?, ?, ?, ?, ?, ?, ?)",
+      "params": [
+        "perf-kid2-p5",
+        "perf-tt-kid2",
+        "Specials",
+        "13:40",
+        "14:30",
+        4,
+        "{{partner}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_timetable__lessons (id, timetable_id, slot, period_id, subject, room, teacher, color, created_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+      "params": [
+        "perf-les-061",
+        "perf-tt-kid2",
+        0,
+        "perf-kid2-p1",
+        "Tutor Time",
+        "T7",
+        "Ms Laurent",
+        "#777f8c",
+        "{{partner}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_timetable__lessons (id, timetable_id, slot, period_id, subject, room, teacher, color, created_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+      "params": [
+        "perf-les-062",
+        "perf-tt-kid2",
+        0,
+        "perf-kid2-p2",
+        "Maths",
+        "M4",
+        "Mr Okafor",
+        "#607cae",
+        "{{partner}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_timetable__lessons (id, timetable_id, slot, period_id, subject, room, teacher, color, created_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+      "params": [
+        "perf-les-063",
+        "perf-tt-kid2",
+        0,
+        "perf-kid2-p3",
+        "English",
+        "E2",
+        "Ms Laurent",
+        "#b0634f",
+        "{{partner}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_timetable__lessons (id, timetable_id, slot, period_id, subject, room, teacher, color, created_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+      "params": [
+        "perf-les-064",
+        "perf-tt-kid2",
+        0,
+        "perf-kid2-p4",
+        "Science",
+        "Lab 1",
+        "Dr Patel",
+        "#4f9b6e",
+        "{{partner}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_timetable__lessons (id, timetable_id, slot, period_id, subject, room, teacher, color, created_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+      "params": [
+        "perf-les-065",
+        "perf-tt-kid2",
+        0,
+        "perf-kid2-p5",
+        "Art",
+        "Studio",
+        "Ms Vance",
+        "#c26a9a",
+        "{{partner}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_timetable__lessons (id, timetable_id, slot, period_id, subject, room, teacher, color, created_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+      "params": [
+        "perf-les-066",
+        "perf-tt-kid2",
+        1,
+        "perf-kid2-p1",
+        "Tutor Time",
+        "T7",
+        "Ms Laurent",
+        "#777f8c",
+        "{{partner}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_timetable__lessons (id, timetable_id, slot, period_id, subject, room, teacher, color, created_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+      "params": [
+        "perf-les-067",
+        "perf-tt-kid2",
+        1,
+        "perf-kid2-p2",
+        "English",
+        "E2",
+        "Ms Laurent",
+        "#b0634f",
+        "{{partner}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_timetable__lessons (id, timetable_id, slot, period_id, subject, room, teacher, color, created_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+      "params": [
+        "perf-les-068",
+        "perf-tt-kid2",
+        1,
+        "perf-kid2-p3",
+        "Maths",
+        "M4",
+        "Mr Okafor",
+        "#607cae",
+        "{{partner}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_timetable__lessons (id, timetable_id, slot, period_id, subject, room, teacher, color, created_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+      "params": [
+        "perf-les-069",
+        "perf-tt-kid2",
+        1,
+        "perf-kid2-p4",
+        "History",
+        "H3",
+        "Mr Brandt",
+        "#a8843f",
+        "{{partner}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_timetable__lessons (id, timetable_id, slot, period_id, subject, room, teacher, color, created_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+      "params": [
+        "perf-les-070",
+        "perf-tt-kid2",
+        1,
+        "perf-kid2-p5",
+        "Music",
+        "Music Room",
+        "Mr Halloran",
+        "#b58a2e",
+        "{{partner}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_timetable__lessons (id, timetable_id, slot, period_id, subject, room, teacher, color, created_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+      "params": [
+        "perf-les-071",
+        "perf-tt-kid2",
+        2,
+        "perf-kid2-p1",
+        "Tutor Time",
+        "T7",
+        "Ms Laurent",
+        "#777f8c",
+        "{{partner}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_timetable__lessons (id, timetable_id, slot, period_id, subject, room, teacher, color, created_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+      "params": [
+        "perf-les-072",
+        "perf-tt-kid2",
+        2,
+        "perf-kid2-p2",
+        "Maths",
+        "M4",
+        "Mr Okafor",
+        "#607cae",
+        "{{partner}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_timetable__lessons (id, timetable_id, slot, period_id, subject, room, teacher, color, created_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+      "params": [
+        "perf-les-073",
+        "perf-tt-kid2",
+        2,
+        "perf-kid2-p3",
+        "Science",
+        "Lab 1",
+        "Dr Patel",
+        "#4f9b6e",
+        "{{partner}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_timetable__lessons (id, timetable_id, slot, period_id, subject, room, teacher, color, created_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+      "params": [
+        "perf-les-074",
+        "perf-tt-kid2",
+        2,
+        "perf-kid2-p4",
+        "English",
+        "E2",
+        "Ms Laurent",
+        "#b0634f",
+        "{{partner}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_timetable__lessons (id, timetable_id, slot, period_id, subject, room, teacher, color, created_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+      "params": [
+        "perf-les-075",
+        "perf-tt-kid2",
+        2,
+        "perf-kid2-p5",
+        "PE",
+        "Gym",
+        "Coach Diaz",
+        "#6b8f3a",
+        "{{partner}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_timetable__lessons (id, timetable_id, slot, period_id, subject, room, teacher, color, created_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+      "params": [
+        "perf-les-076",
+        "perf-tt-kid2",
+        3,
+        "perf-kid2-p1",
+        "Tutor Time",
+        "T7",
+        "Ms Laurent",
+        "#777f8c",
+        "{{partner}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_timetable__lessons (id, timetable_id, slot, period_id, subject, room, teacher, color, created_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+      "params": [
+        "perf-les-077",
+        "perf-tt-kid2",
+        3,
+        "perf-kid2-p2",
+        "English",
+        "E2",
+        "Ms Laurent",
+        "#b0634f",
+        "{{partner}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_timetable__lessons (id, timetable_id, slot, period_id, subject, room, teacher, color, created_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+      "params": [
+        "perf-les-078",
+        "perf-tt-kid2",
+        3,
+        "perf-kid2-p3",
+        "Geography",
+        "H5",
+        "Ms Ito",
+        "#5a9aa8",
+        "{{partner}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_timetable__lessons (id, timetable_id, slot, period_id, subject, room, teacher, color, created_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+      "params": [
+        "perf-les-079",
+        "perf-tt-kid2",
+        3,
+        "perf-kid2-p4",
+        "Maths",
+        "M4",
+        "Mr Okafor",
+        "#607cae",
+        "{{partner}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_timetable__lessons (id, timetable_id, slot, period_id, subject, room, teacher, color, created_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+      "params": [
+        "perf-les-080",
+        "perf-tt-kid2",
+        3,
+        "perf-kid2-p5",
+        "Computing",
+        "IT 2",
+        "Ms Novak",
+        "#4a6fa5",
+        "{{partner}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_timetable__lessons (id, timetable_id, slot, period_id, subject, room, teacher, color, created_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+      "params": [
+        "perf-les-081",
+        "perf-tt-kid2",
+        4,
+        "perf-kid2-p1",
+        "Tutor Time",
+        "T7",
+        "Ms Laurent",
+        "#777f8c",
+        "{{partner}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_timetable__lessons (id, timetable_id, slot, period_id, subject, room, teacher, color, created_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+      "params": [
+        "perf-les-082",
+        "perf-tt-kid2",
+        4,
+        "perf-kid2-p2",
+        "Science",
+        "Lab 1",
+        "Dr Patel",
+        "#4f9b6e",
+        "{{partner}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_timetable__lessons (id, timetable_id, slot, period_id, subject, room, teacher, color, created_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+      "params": [
+        "perf-les-083",
+        "perf-tt-kid2",
+        4,
+        "perf-kid2-p3",
+        "Maths",
+        "M4",
+        "Mr Okafor",
+        "#607cae",
+        "{{partner}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_timetable__lessons (id, timetable_id, slot, period_id, subject, room, teacher, color, created_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+      "params": [
+        "perf-les-084",
+        "perf-tt-kid2",
+        4,
+        "perf-kid2-p4",
+        "English",
+        "E2",
+        "Ms Laurent",
+        "#b0634f",
+        "{{partner}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_timetable__lessons (id, timetable_id, slot, period_id, subject, room, teacher, color, created_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+      "params": [
+        "perf-les-085",
+        "perf-tt-kid2",
+        4,
+        "perf-kid2-p5",
+        "Drama",
+        "Hall",
+        "Mr Reyes",
+        "#a05252",
+        "{{partner}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_timetable__lessons (id, timetable_id, slot, period_id, subject, room, teacher, color, created_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+      "params": [
+        "perf-les-086",
+        "perf-tt-kid2",
+        5,
+        "perf-kid2-p1",
+        "Tutor Time",
+        "T7",
+        "Ms Laurent",
+        "#777f8c",
+        "{{partner}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_timetable__lessons (id, timetable_id, slot, period_id, subject, room, teacher, color, created_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+      "params": [
+        "perf-les-087",
+        "perf-tt-kid2",
+        5,
+        "perf-kid2-p2",
+        "Maths",
+        "M4",
+        "Mr Okafor",
+        "#607cae",
+        "{{partner}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_timetable__lessons (id, timetable_id, slot, period_id, subject, room, teacher, color, created_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+      "params": [
+        "perf-les-088",
+        "perf-tt-kid2",
+        5,
+        "perf-kid2-p3",
+        "English",
+        "E2",
+        "Ms Laurent",
+        "#b0634f",
+        "{{partner}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_timetable__lessons (id, timetable_id, slot, period_id, subject, room, teacher, color, created_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+      "params": [
+        "perf-les-089",
+        "perf-tt-kid2",
+        5,
+        "perf-kid2-p4",
+        "Art",
+        "Studio",
+        "Ms Vance",
+        "#c26a9a",
+        "{{partner}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_timetable__lessons (id, timetable_id, slot, period_id, subject, room, teacher, color, created_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+      "params": [
+        "perf-les-090",
+        "perf-tt-kid2",
+        5,
+        "perf-kid2-p5",
+        "PE",
+        "Gym",
+        "Coach Diaz",
+        "#6b8f3a",
+        "{{partner}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_timetable__exceptions (id, timetable_id, start_date, end_date, kind, label, created_by) VALUES (?, ?, date('now','weekday 0','-6 days','+70 days'), date('now','weekday 0','-6 days','+84 days'), ?, ?, ?)",
+      "params": [
+        "perf-ex-8",
+        "perf-tt-kid2",
+        "no_school",
+        "Winter break",
+        "{{partner}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_timetable__exceptions (id, timetable_id, start_date, end_date, kind, label, created_by) VALUES (?, ?, date('now','weekday 0','-6 days','+182 days'), date('now','weekday 0','-6 days','+193 days'), ?, ?, ?)",
+      "params": [
+        "perf-ex-9",
+        "perf-tt-kid2",
+        "no_school",
+        "Spring break",
+        "{{partner}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_timetable__school_days (id, timetable_id, day_date, slot, materializer_version, created_by) VALUES (?, ?, date('now','weekday 0','-6 days','+0 days'), ?, ?, ?)",
+      "params": [
+        "perf-sd-021",
+        "perf-tt-kid2",
+        1,
+        1,
+        "{{partner}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_timetable__school_days (id, timetable_id, day_date, slot, materializer_version, created_by) VALUES (?, ?, date('now','weekday 0','-6 days','+1 days'), ?, ?, ?)",
+      "params": [
+        "perf-sd-022",
+        "perf-tt-kid2",
+        2,
+        1,
+        "{{partner}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_timetable__school_days (id, timetable_id, day_date, slot, materializer_version, created_by) VALUES (?, ?, date('now','weekday 0','-6 days','+2 days'), ?, ?, ?)",
+      "params": [
+        "perf-sd-023",
+        "perf-tt-kid2",
+        3,
+        1,
+        "{{partner}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_timetable__school_days (id, timetable_id, day_date, slot, materializer_version, created_by) VALUES (?, ?, date('now','weekday 0','-6 days','+3 days'), ?, ?, ?)",
+      "params": [
+        "perf-sd-024",
+        "perf-tt-kid2",
+        4,
+        1,
+        "{{partner}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_timetable__school_days (id, timetable_id, day_date, slot, materializer_version, created_by) VALUES (?, ?, date('now','weekday 0','-6 days','+4 days'), ?, ?, ?)",
+      "params": [
+        "perf-sd-025",
+        "perf-tt-kid2",
+        5,
+        1,
+        "{{partner}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_timetable__school_days (id, timetable_id, day_date, slot, materializer_version, created_by) VALUES (?, ?, date('now','weekday 0','-6 days','+7 days'), ?, ?, ?)",
+      "params": [
+        "perf-sd-026",
+        "perf-tt-kid2",
+        0,
+        1,
+        "{{partner}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_timetable__school_days (id, timetable_id, day_date, slot, materializer_version, created_by) VALUES (?, ?, date('now','weekday 0','-6 days','+8 days'), ?, ?, ?)",
+      "params": [
+        "perf-sd-027",
+        "perf-tt-kid2",
+        1,
+        1,
+        "{{partner}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_timetable__school_days (id, timetable_id, day_date, slot, materializer_version, created_by) VALUES (?, ?, date('now','weekday 0','-6 days','+9 days'), ?, ?, ?)",
+      "params": [
+        "perf-sd-028",
+        "perf-tt-kid2",
+        2,
+        1,
+        "{{partner}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_timetable__school_days (id, timetable_id, day_date, slot, materializer_version, created_by) VALUES (?, ?, date('now','weekday 0','-6 days','+10 days'), ?, ?, ?)",
+      "params": [
+        "perf-sd-029",
+        "perf-tt-kid2",
+        3,
+        1,
+        "{{partner}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_timetable__school_days (id, timetable_id, day_date, slot, materializer_version, created_by) VALUES (?, ?, date('now','weekday 0','-6 days','+11 days'), ?, ?, ?)",
+      "params": [
+        "perf-sd-030",
+        "perf-tt-kid2",
+        4,
+        1,
+        "{{partner}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_timetable__school_days (id, timetable_id, day_date, slot, materializer_version, created_by) VALUES (?, ?, date('now','weekday 0','-6 days','+14 days'), ?, ?, ?)",
+      "params": [
+        "perf-sd-031",
+        "perf-tt-kid2",
+        5,
+        1,
+        "{{partner}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_timetable__school_days (id, timetable_id, day_date, slot, materializer_version, created_by) VALUES (?, ?, date('now','weekday 0','-6 days','+15 days'), ?, ?, ?)",
+      "params": [
+        "perf-sd-032",
+        "perf-tt-kid2",
+        0,
+        1,
+        "{{partner}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_timetable__school_days (id, timetable_id, day_date, slot, materializer_version, created_by) VALUES (?, ?, date('now','weekday 0','-6 days','+16 days'), ?, ?, ?)",
+      "params": [
+        "perf-sd-033",
+        "perf-tt-kid2",
+        1,
+        1,
+        "{{partner}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_timetable__school_days (id, timetable_id, day_date, slot, materializer_version, created_by) VALUES (?, ?, date('now','weekday 0','-6 days','+17 days'), ?, ?, ?)",
+      "params": [
+        "perf-sd-034",
+        "perf-tt-kid2",
+        2,
+        1,
+        "{{partner}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_timetable__school_days (id, timetable_id, day_date, slot, materializer_version, created_by) VALUES (?, ?, date('now','weekday 0','-6 days','+18 days'), ?, ?, ?)",
+      "params": [
+        "perf-sd-035",
+        "perf-tt-kid2",
+        3,
+        1,
+        "{{partner}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_timetable__timetables (id, member_id, name, cycle_kind, cycle_length, anchor_date, start_date, end_date, override_consumes_cycle_day, status, revision, export_mode, created_by, created_at, updated_at) VALUES (?, ?, ?, ?, ?, date('now','weekday 0','-6 days','-21 days'), date('now','weekday 0','-6 days','-21 days'), date('now','weekday 0','-6 days','+91 days'), ?, ?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-30 days','+0 minutes'), strftime('%Y-%m-%dT%H:%M:%fZ','now','-10 days','+0 minutes'))",
+      "params": [
+        "perf-tt-me",
+        "{{me}}",
+        "Evening Classes",
+        "weekly",
+        1,
+        0,
+        "active",
+        2,
+        "off",
+        "{{me}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_timetable__periods (id, timetable_id, label, start_time, end_time, sort_order, created_by) VALUES (?, ?, ?, ?, ?, ?, ?)",
+      "params": [
+        "perf-me-p1",
+        "perf-tt-me",
+        "Early evening",
+        "18:00",
+        "19:15",
+        0,
+        "{{me}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_timetable__periods (id, timetable_id, label, start_time, end_time, sort_order, created_by) VALUES (?, ?, ?, ?, ?, ?, ?)",
+      "params": [
+        "perf-me-p2",
+        "perf-tt-me",
+        "Late evening",
+        "19:30",
+        "20:45",
+        1,
+        "{{me}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_timetable__lessons (id, timetable_id, slot, period_id, subject, room, teacher, color, created_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+      "params": [
+        "perf-les-091",
+        "perf-tt-me",
+        1,
+        "perf-me-p1",
+        "French",
+        "L1",
+        "Mme Roux",
+        "#8a66b3",
+        "{{me}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_timetable__lessons (id, timetable_id, slot, period_id, subject, room, teacher, color, created_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+      "params": [
+        "perf-les-092",
+        "perf-tt-me",
+        3,
+        "perf-me-p1",
+        "Art",
+        "Studio",
+        "Ms Vance",
+        "#c26a9a",
+        "{{me}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_timetable__lessons (id, timetable_id, slot, period_id, subject, room, teacher, color, created_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+      "params": [
+        "perf-les-093",
+        "perf-tt-me",
+        3,
+        "perf-me-p2",
+        "Music",
+        "Music Room",
+        "Mr Halloran",
+        "#b58a2e",
+        "{{me}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_timetable__school_days (id, timetable_id, day_date, slot, materializer_version, created_by) VALUES (?, ?, date('now','weekday 0','-6 days','+1 days'), ?, ?, ?)",
+      "params": [
+        "perf-sd-036",
+        "perf-tt-me",
+        1,
+        1,
+        "{{me}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_timetable__school_days (id, timetable_id, day_date, slot, materializer_version, created_by) VALUES (?, ?, date('now','weekday 0','-6 days','+3 days'), ?, ?, ?)",
+      "params": [
+        "perf-sd-037",
+        "perf-tt-me",
+        3,
+        1,
+        "{{me}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_timetable__school_days (id, timetable_id, day_date, slot, materializer_version, created_by) VALUES (?, ?, date('now','weekday 0','-6 days','+8 days'), ?, ?, ?)",
+      "params": [
+        "perf-sd-038",
+        "perf-tt-me",
+        1,
+        1,
+        "{{me}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_timetable__school_days (id, timetable_id, day_date, slot, materializer_version, created_by) VALUES (?, ?, date('now','weekday 0','-6 days','+10 days'), ?, ?, ?)",
+      "params": [
+        "perf-sd-039",
+        "perf-tt-me",
+        3,
+        1,
+        "{{me}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_timetable__timetables (id, member_id, name, cycle_kind, cycle_length, anchor_date, start_date, end_date, override_consumes_cycle_day, status, revision, export_mode, created_by, created_at, updated_at) VALUES (?, ?, ?, ?, ?, date('now','weekday 0','-6 days','+98 days'), date('now','weekday 0','-6 days','+98 days'), date('now','weekday 0','-6 days','+200 days'), ?, ?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-6 days','+0 minutes'), strftime('%Y-%m-%dT%H:%M:%fZ','now','-1 days','+0 minutes'))",
+      "params": [
+        "perf-tt-draft1",
+        "{{child}}",
+        "Year 7 Spring Term (draft)",
+        "weekly",
+        2,
+        0,
+        "draft",
+        0,
+        "off",
+        "{{me}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_timetable__periods (id, timetable_id, label, start_time, end_time, sort_order, created_by) VALUES (?, ?, ?, ?, ?, ?, ?)",
+      "params": [
+        "perf-d1-p1",
+        "perf-tt-draft1",
+        "Period 1",
+        "08:50",
+        "09:40",
+        0,
+        "{{me}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_timetable__periods (id, timetable_id, label, start_time, end_time, sort_order, created_by) VALUES (?, ?, ?, ?, ?, ?, ?)",
+      "params": [
+        "perf-d1-p2",
+        "perf-tt-draft1",
+        "Period 2",
+        "09:40",
+        "10:30",
+        1,
+        "{{me}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_timetable__periods (id, timetable_id, label, start_time, end_time, sort_order, created_by) VALUES (?, ?, ?, ?, ?, ?, ?)",
+      "params": [
+        "perf-d1-p3",
+        "perf-tt-draft1",
+        "Period 3",
+        "10:50",
+        "11:40",
+        2,
+        "{{me}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_timetable__periods (id, timetable_id, label, start_time, end_time, sort_order, created_by) VALUES (?, ?, ?, ?, ?, ?, ?)",
+      "params": [
+        "perf-d1-p4",
+        "perf-tt-draft1",
+        "Period 4",
+        "11:40",
+        "12:30",
+        3,
+        "{{me}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_timetable__lessons (id, timetable_id, slot, period_id, subject, room, teacher, color, created_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+      "params": [
+        "perf-les-094",
+        "perf-tt-draft1",
+        0,
+        "perf-d1-p1",
+        "English",
+        "E2",
+        "Ms Laurent",
+        "#b0634f",
+        "{{me}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_timetable__lessons (id, timetable_id, slot, period_id, subject, room, teacher, color, created_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+      "params": [
+        "perf-les-095",
+        "perf-tt-draft1",
+        0,
+        "perf-d1-p2",
+        "Science",
+        "Lab 1",
+        "Dr Patel",
+        "#4f9b6e",
+        "{{me}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_timetable__lessons (id, timetable_id, slot, period_id, subject, room, teacher, color, created_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+      "params": [
+        "perf-les-096",
+        "perf-tt-draft1",
+        0,
+        "perf-d1-p3",
+        "Maths",
+        "M4",
+        "Mr Okafor",
+        "#607cae",
+        "{{me}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_timetable__lessons (id, timetable_id, slot, period_id, subject, room, teacher, color, created_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+      "params": [
+        "perf-les-097",
+        "perf-tt-draft1",
+        1,
+        "perf-d1-p1",
+        "Maths",
+        "M4",
+        "Mr Okafor",
+        "#607cae",
+        "{{me}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_timetable__lessons (id, timetable_id, slot, period_id, subject, room, teacher, color, created_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+      "params": [
+        "perf-les-098",
+        "perf-tt-draft1",
+        1,
+        "perf-d1-p2",
+        "History",
+        "H3",
+        "Mr Brandt",
+        "#a8843f",
+        "{{me}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_timetable__lessons (id, timetable_id, slot, period_id, subject, room, teacher, color, created_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+      "params": [
+        "perf-les-099",
+        "perf-tt-draft1",
+        1,
+        "perf-d1-p3",
+        "English",
+        "E2",
+        "Ms Laurent",
+        "#b0634f",
+        "{{me}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_timetable__lessons (id, timetable_id, slot, period_id, subject, room, teacher, color, created_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+      "params": [
+        "perf-les-100",
+        "perf-tt-draft1",
+        2,
+        "perf-d1-p1",
+        "Art",
+        "Studio",
+        "Ms Vance",
+        "#c26a9a",
+        "{{me}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_timetable__lessons (id, timetable_id, slot, period_id, subject, room, teacher, color, created_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+      "params": [
+        "perf-les-101",
+        "perf-tt-draft1",
+        2,
+        "perf-d1-p2",
+        "Maths",
+        "M4",
+        "Mr Okafor",
+        "#607cae",
+        "{{me}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_timetable__lessons (id, timetable_id, slot, period_id, subject, room, teacher, color, created_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+      "params": [
+        "perf-les-102",
+        "perf-tt-draft1",
+        2,
+        "perf-d1-p3",
+        "Science",
+        "Lab 1",
+        "Dr Patel",
+        "#4f9b6e",
+        "{{me}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_timetable__timetables (id, member_id, name, cycle_kind, cycle_length, anchor_date, start_date, end_date, override_consumes_cycle_day, status, revision, export_mode, created_by, created_at, updated_at) VALUES (?, ?, ?, ?, ?, date('now','weekday 0','-6 days','+98 days'), date('now','weekday 0','-6 days','+98 days'), date('now','weekday 0','-6 days','+245 days'), ?, ?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-4 days','+0 minutes'), strftime('%Y-%m-%dT%H:%M:%fZ','now','-1 days','+0 minutes'))",
+      "params": [
+        "perf-tt-draft2",
+        "{{child2}}",
+        "Grade 4 Second Semester",
+        "day_rotation",
+        6,
+        0,
+        "draft",
+        0,
+        "off",
+        "{{partner}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_timetable__timetables (id, member_id, name, cycle_kind, cycle_length, anchor_date, start_date, end_date, override_consumes_cycle_day, status, revision, export_mode, created_by, created_at, updated_at) VALUES (?, ?, ?, ?, ?, date('now','weekday 0','-6 days','+266 days'), date('now','weekday 0','-6 days','+266 days'), date('now','weekday 0','-6 days','+300 days'), ?, ?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-2 days','+0 minutes'), strftime('%Y-%m-%dT%H:%M:%fZ','now','-1 days','+0 minutes'))",
+      "params": [
+        "perf-tt-draft3",
+        "{{child}}",
+        "Summer Club Schedule",
+        "weekly",
+        1,
+        0,
+        "draft",
+        0,
+        "off",
+        "{{child}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_timetable__timetables (id, member_id, name, cycle_kind, cycle_length, anchor_date, start_date, end_date, override_consumes_cycle_day, status, revision, export_mode, created_by, created_at, updated_at) VALUES (?, ?, ?, ?, ?, date('now','weekday 0','-6 days','-175 days'), date('now','weekday 0','-6 days','-175 days'), date('now','weekday 0','-6 days','-84 days'), ?, ?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-180 days','+0 minutes'), strftime('%Y-%m-%dT%H:%M:%fZ','now','-160 days','+0 minutes'))",
+      "params": [
+        "perf-tt-old",
+        "{{child}}",
+        "Year 6 Summer Term",
+        "weekly",
+        1,
+        0,
+        "archived",
+        9,
+        "off",
+        "{{me}}"
+      ]
+    }
+  ]
+}
