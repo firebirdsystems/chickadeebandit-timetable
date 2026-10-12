@@ -36,7 +36,7 @@ describe('creating a timetable', () => {
   it('says so when the draft could not be removed, and removes nothing after a successful setup', async () => {
     const stuck = setup({ changed: 0 });
     await stuck.run();
-    expect(stuck.messages).toEqual(['Batch failed The empty draft School could not be removed; delete it before trying again.']);
+    expect(stuck.messages).toEqual(['Couldn’t set up the timetable. The empty draft School could not be removed; delete it before trying again.']);
     const fine = setup({ batchFails: false });
     await fine.run();
     expect(fine.context.request).not.toHaveBeenCalled();

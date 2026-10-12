@@ -131,7 +131,7 @@ describe('comparison for the replace diff', () => {
   function compare({ fail = false } = {}) {
     const pending = [];
     const context = vm.createContext({
-      DB: '/db', importReview: null,
+      failText: logic.failText, console, DB: '/db', importReview: null,
       timetables: [
         { id: 'tt-a', member_id: 'a', status: 'active', revision: 1, name: 'A' },
         { id: 'tt-b', member_id: 'b', status: 'active', revision: 1, name: 'B' },
@@ -164,7 +164,7 @@ describe('comparison for the replace diff', () => {
     const load = app.load();
     app.settle('tt-a');
     await load;
-    expect(app.context.importReview.compare).toMatchObject({ state: 'error', error: 'offline' });
+    expect(app.context.importReview.compare).toMatchObject({ state: 'error', error: 'Couldn’t load the current timetable.' });
     expect(app.ready()).toBe(false);
   });
 
@@ -324,9 +324,10 @@ describe('refresh while saving', () => {
   it('refresh re-checks the import comparison even when loading the open timetable fails', async () => {
     const loadComparison = vi.fn(async () => {});
     const context = vm.createContext({
+      failText: logic.failText, console,
       busy: false, loading: false, error: '', selected: null, timetables: [], importReview: { student: 's' },
       render: () => {}, loadContext: async () => {}, localToday: () => '2026-09-16', loadList: async () => {},
-      loadSelected: async () => { throw new Error('Timetable changed while loading.'); }, loadComparison,
+      loadSelected: async () => { throw logic.userError('Timetable changed while loading.'); }, loadComparison,
       formDrafts: () => new Map(), restoreForms: () => {}, submittedForm: null,
     });
     vm.runInContext(source('async function refresh(', 'function updateGuard('), context);

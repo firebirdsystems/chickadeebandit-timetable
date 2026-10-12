@@ -1,7 +1,7 @@
 import { readFileSync } from 'node:fs';
 import vm from 'node:vm';
 import { describe, expect, it, vi } from 'vitest';
-import { clashingLesson, columnSlots, validatePeriods } from '../src/logic.js';
+import { clashingLesson, columnSlots, userError, validatePeriods } from '../src/logic.js';
 
 const html = readFileSync(new URL('../src/index.html', import.meta.url), 'utf8');
 const savePeriodSource = html.slice(html.indexOf('async function savePeriod('), html.indexOf('async function deletePeriod('));
@@ -14,6 +14,7 @@ const period = (id, sort_order) => ({
 function setup(periods, periodId = '', lessons = []) {
   const guarded = vi.fn(async () => {});
   const context = vm.createContext({
+    userError,
     // Model the data-period attribute emitted by the bell schedule form.
     form: {
       dataset: { period: periodId },

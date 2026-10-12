@@ -1,6 +1,6 @@
 // Import pipeline (plan §5): parse → candidate → review → multi-batch draft → activate.
 // Pure functions only; index.html owns the DOM, network and ids.
-import { validateDayLessons, validateLessons, validatePeriods, validTime } from './logic.js';
+import { userError, validateDayLessons, validateLessons, validatePeriods, validTime } from './logic.js';
 
 // `text` and `notes` match the editor's maxlength on subject/room/teacher/period label and notes.
 // Days may run their own bell times, so a timetable can have more periods than any one day uses; lessons stay bounded
@@ -42,7 +42,7 @@ export function parseDelimited(text) {
     if (c === '\n') { line++; i++; endRow(); continue; }
     field += c; i++;
   }
-  if (quoted) throw new Error(`Row ${rowLine}: a quoted cell is never closed.`);
+  if (quoted) throw userError(`Row ${rowLine}: a quoted cell is never closed.`);
   if (field || row.length) endRow();
   return { delimiter, rows };
 }
@@ -525,7 +525,7 @@ export function planImportBatches(draft, periods, lessons, exceptions, { prefix,
   const batches = [];
   let revision = draft.revision, current = null, size = 0;
   for (const statement of statements) {
-    if (bytes(statement) + bytes(guard(revision)) > limits.bytes) throw new Error('A single import statement is too large.');
+    if (bytes(statement) + bytes(guard(revision)) > limits.bytes) throw userError('A single import statement is too large.');
     if (!current || current.length >= limits.statements || size + bytes(statement) > limits.bytes) {
       current = [guard(revision)];
       size = bytes(current[0]);

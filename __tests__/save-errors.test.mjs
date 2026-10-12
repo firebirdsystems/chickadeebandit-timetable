@@ -68,7 +68,7 @@ describe('save error recovery', () => {
     app.context.form = app.form();
     await app.run('saveTerm(form)');
     expect(app.batch).toHaveBeenCalledOnce();
-    expect(app.context.error).toBe('Stale state claim');
+    expect(app.context.error).toBe('Couldn’t save — try again.');
     expect(app.form().elements.namedItem('end_date').value).toBe('2026-12-31');
     expect(app.form().elements.namedItem('exceptions').value).toBe(text);
     expect(app.refresh).not.toHaveBeenCalled();
