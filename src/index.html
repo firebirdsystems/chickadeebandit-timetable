@@ -12,7 +12,7 @@
 <form id="cellForm" class="stack"><p id="cellError" class="banner" role="alert" hidden></p><input type="hidden" name="color_set"><label>Subject<input name="subject" required maxlength="80" list="subjects"></label><datalist id="subjects"></datalist><div class="fields"><label>Room<input name="room" maxlength="80"></label><label>Teacher<input name="teacher" maxlength="80"></label></div><div class="fields"><label>Colour<input name="color" type="color" value="#607cae"></label><label>Notes<textarea name="notes" maxlength="500"></textarea></label></div><div class="actions"><button class="primary" type="submit" name="intent" value="save">Save</button><button type="submit" name="intent" value="next">Save &amp; next</button><button type="button" id="deleteCell" class="danger">Clear lesson</button></div></form></dialog>
 <script type="module">
 import { searchMatch, isAdult, createShareHelper, activeShareLinks, SHARE_CALENDAR_EXPIRY_CHOICES, DEFAULT_SHARE_EXPIRY_HOURS, glyph } from '/hub-sdk.js';
-import { createShareUi, createOverlayView } from './share.js';
+import { createShareUi, createOverlayView } from '/hub-share-ui.js';
 import { failText, userError, anchorFromPhase, canShareTimetable, clashingLesson, clipExceptions, columnSlots, daysBetween, matchingLessonIds, overlappingPeriod, projectSchoolDays, slotForDate, validateTimetable, validatePeriods, validateLessons, weekday, mondayOf, addDays } from './logic.js';
 import { IMPORT_LIMITS, buildCandidate, candidateRows, carryOver, diffCandidate, digestText, parseTimetableText, planImportBatches } from './import.js';
 import { decodeImportFile, parseIcs } from './ics.js';
