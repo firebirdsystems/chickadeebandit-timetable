@@ -1,5 +1,5 @@
 CREATE TABLE IF NOT EXISTS app_timetable__timetables (
- id TEXT PRIMARY KEY, member_id TEXT NOT NULL, name TEXT NOT NULL,
+ id TEXT NOT NULL PRIMARY KEY, member_id TEXT NOT NULL, name TEXT NOT NULL,
  cycle_kind TEXT NOT NULL CHECK(cycle_kind IN ('weekly','day_rotation')),
  cycle_length INTEGER NOT NULL CHECK((cycle_kind = 'weekly' AND cycle_length BETWEEN 1 AND 4) OR (cycle_kind = 'day_rotation' AND cycle_length BETWEEN 2 AND 10)),
  anchor_date TEXT NOT NULL, start_date TEXT NOT NULL, end_date TEXT NOT NULL CHECK(end_date >= start_date),
@@ -12,13 +12,13 @@ CREATE UNIQUE INDEX IF NOT EXISTS app_timetable__active_member_idx
  ON app_timetable__timetables(member_id) WHERE status = 'active';
 CREATE INDEX IF NOT EXISTS app_timetable__member_idx ON app_timetable__timetables(member_id,status);
 CREATE TABLE IF NOT EXISTS app_timetable__periods (
- id TEXT PRIMARY KEY, timetable_id TEXT NOT NULL REFERENCES app_timetable__timetables(id) ON DELETE CASCADE, label TEXT NOT NULL,
+ id TEXT NOT NULL PRIMARY KEY, timetable_id TEXT NOT NULL REFERENCES app_timetable__timetables(id) ON DELETE CASCADE, label TEXT NOT NULL,
  start_time TEXT NOT NULL, end_time TEXT NOT NULL CHECK(end_time > start_time), sort_order INTEGER NOT NULL,
  created_by TEXT NOT NULL, UNIQUE(timetable_id,id)
 );
 CREATE INDEX IF NOT EXISTS app_timetable__periods_parent_idx ON app_timetable__periods(timetable_id,sort_order,id);
 CREATE TABLE IF NOT EXISTS app_timetable__lessons (
- id TEXT PRIMARY KEY, timetable_id TEXT NOT NULL REFERENCES app_timetable__timetables(id) ON DELETE CASCADE, slot INTEGER NOT NULL CHECK(slot BETWEEN 0 AND 27),
+ id TEXT NOT NULL PRIMARY KEY, timetable_id TEXT NOT NULL REFERENCES app_timetable__timetables(id) ON DELETE CASCADE, slot INTEGER NOT NULL CHECK(slot BETWEEN 0 AND 27),
  period_id TEXT NOT NULL, subject TEXT NOT NULL, room TEXT NOT NULL DEFAULT '',
  teacher TEXT NOT NULL DEFAULT '', color TEXT NOT NULL DEFAULT '',
  notes TEXT NOT NULL DEFAULT '', created_by TEXT NOT NULL,
@@ -27,7 +27,7 @@ CREATE TABLE IF NOT EXISTS app_timetable__lessons (
 );
 CREATE INDEX IF NOT EXISTS app_timetable__lessons_parent_idx ON app_timetable__lessons(timetable_id,slot,id);
 CREATE TABLE IF NOT EXISTS app_timetable__exceptions (
- id TEXT PRIMARY KEY, timetable_id TEXT NOT NULL REFERENCES app_timetable__timetables(id) ON DELETE CASCADE, start_date TEXT NOT NULL,
+ id TEXT NOT NULL PRIMARY KEY, timetable_id TEXT NOT NULL REFERENCES app_timetable__timetables(id) ON DELETE CASCADE, start_date TEXT NOT NULL,
  end_date TEXT NOT NULL, kind TEXT NOT NULL CHECK(kind IN ('no_school','day_override')),
  override_slot INTEGER, label TEXT NOT NULL DEFAULT '', created_by TEXT NOT NULL,
  CHECK(end_date >= start_date),
@@ -35,7 +35,7 @@ CREATE TABLE IF NOT EXISTS app_timetable__exceptions (
 );
 CREATE INDEX IF NOT EXISTS app_timetable__exceptions_parent_idx ON app_timetable__exceptions(timetable_id,start_date,id);
 CREATE TABLE IF NOT EXISTS app_timetable__school_days (
- id TEXT PRIMARY KEY, timetable_id TEXT NOT NULL REFERENCES app_timetable__timetables(id) ON DELETE CASCADE, day_date TEXT NOT NULL,
+ id TEXT NOT NULL PRIMARY KEY, timetable_id TEXT NOT NULL REFERENCES app_timetable__timetables(id) ON DELETE CASCADE, day_date TEXT NOT NULL,
  slot INTEGER NOT NULL CHECK(slot BETWEEN 0 AND 27), label TEXT NOT NULL DEFAULT '',
  materializer_version INTEGER NOT NULL DEFAULT 1, created_by TEXT NOT NULL,
  UNIQUE(timetable_id,day_date)
